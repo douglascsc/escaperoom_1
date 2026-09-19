@@ -549,6 +549,7 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
 
         ${state.solvedPuzzles.includes('db') ? '<button type="button" id="crud-review-db-btn" class="btn btn-ghost">← Voltar para Sala 04 — Banco de Dados</button>' : ''}
 
+        <p class="db-tables-title">TABELA: usuarios</p>
         <table class="crud-table">
           <thead><tr><th>ID</th><th>NOME</th><th>LOGIN</th><th>PERFIL</th></tr></thead>
           <tbody id="crud-tbody">${rows}</tbody>
