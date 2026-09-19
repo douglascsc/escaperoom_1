@@ -200,9 +200,9 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
         <p class="room-kicker">SALA 01</p>
         <h2 class="room-title">🎨 A Interface Invisível</h2>
         <div class="room-narrative">
-          <p>&gt; O sistema abriu uma nova sala.</p>
-          <p>&gt; Há uma mensagem escondida nesta interface.</p>
-          <p>&gt; Você consegue encontrá-la?</p>
+          <p>&gt; O primeiro painel do sistema foi liberado.</p>
+          <p>&gt; Ele diz que está tudo operacional — mas isso não é bem verdade.</p>
+          <p>&gt; Alguém escondeu uma mensagem aqui antes de perder o acesso. Encontre-a.</p>
         </div>
 
         <div class="css-panel" aria-label="Painel de status do sistema">
