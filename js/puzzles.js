@@ -272,7 +272,7 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
       'Pense no usuário padrão mais famoso de uma instalação recém-feita de um banco de dados MySQL.',
       'O usuário desse painel também é "root" — mas releia com atenção o que o log diz sobre a senha.',
       'Uma instalação recém-feita do MySQL, por padrão, não vem com senha nenhuma para o root.',
-      'Usuário: root — Senha: deixe o campo em branco e clique em ENTRAR.'
+      'Você já sabe o usuário e já sabe como o MySQL trata a senha em instalações novas — junte as duas informações no formulário e tente ENTRAR.'
     ],
     render: function (state) {
       if (state.solvedPuzzles.includes('js')) return renderSolvedView(roomJS);
@@ -343,7 +343,7 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
       "Use SELECT * FROM tabela; para listar todos os registros de uma tabela. Experimente com usuarios, produtos e logs.",
       'A tabela logs guarda o histórico do que aconteceu com a conta do administrador — vale a pena consultá-la.',
       "A cláusula WHERE filtra registros por uma condição, no formato campo = 'valor'.",
-      "Tente: SELECT * FROM usuarios WHERE perfil = 'admin'; — depois, use o botão que aparece para descriptografar o registro encontrado."
+      "Monte a consulta filtrando a tabela usuarios pelo perfil que você está procurando — depois, use o botão que aparece para descriptografar o registro encontrado."
     ],
     render: function (state) {
       if (state.solvedPuzzles.includes('db')) return renderSolvedView(roomDB);
