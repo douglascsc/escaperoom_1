@@ -92,7 +92,6 @@ window.App = window.App || {};
           <button type="button" class="object-btn" data-object="terminal">💻<span>Terminal</span></button>
         </div>
 
-        <p class="room-tip">💭 Um relatório de sistema pode conter mais informação do que a tela mostra. Ferramentas de desenvolvedor do navegador ajudam a enxergar o que está por trás da interface.</p>
 
         <div id="html-detail" class="detail-panel hidden" aria-live="polite"></div>
 
