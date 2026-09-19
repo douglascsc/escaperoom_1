@@ -191,7 +191,7 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
       'Um texto pode estar realmente presente na página mesmo que você não consiga enxergá-lo a olho nu.',
       'Tente selecionar todo o conteúdo da tela (Ctrl+A) ou clique com o botão direito em cima do painel e escolha "Inspecionar".',
       'No painel de Estilos do DevTools, observe as propriedades color e background do elemento suspeito.',
-      'A classe do texto escondido tem color igual a background — o código real é o que aparece como "CÓDIGO: 4816"; outro número que você encontrar por aí tem display: none e é uma isca.'
+      'A classe do texto escondido tem color igual a background — o código real é o que aparece como "CÓDIGO: xxxx"; outro número que você encontrar por aí tem display: none e é uma isca.'
     ],
     render: function (state) {
       if (state.solvedPuzzles.includes('css')) return renderSolvedView(roomCSS);
