@@ -38,6 +38,34 @@ window.App = window.App || {};
       .toLowerCase();
   }
 
+  // Valores reais do administrador, obtidos ao "descriptografar" o registro
+  // corrompido na Sala 04. Isso NÃO altera `tables.usuarios` — é só leitura,
+  // a restauração de verdade acontece na Sala 05, via INSERT.
+  const decryptedAdmin = { nome: 'ADMIN', login: 'master', perfil: 'administrador' };
+  function decryptAdminRecord() {
+    return Object.assign({}, decryptedAdmin);
+  }
+
+  // Interpretador controlado para o INSERT da Sala 05 — reconhece apenas o
+  // formato INSERT INTO usuarios (nome, login, perfil) VALUES (...), na
+  // mesma ordem de colunas. Não é um parser SQL genérico.
+  const INSERT_RE = /^insert\s+into\s+usuarios\s*\(\s*nome\s*,\s*login\s*,\s*perfil\s*\)\s*values\s*\(\s*'([^']*)'\s*,\s*'([^']*)'\s*,\s*'([^']*)'\s*\)$/i;
+
+  function runInsert(raw) {
+    if (!raw || !raw.trim()) {
+      return { ok: false, message: 'Digite um comando INSERT antes de executar.' };
+    }
+    const normalized = raw.trim().replace(/;+\s*$/, '').replace(/\s+/g, ' ').replace(/"/g, "'");
+    const m = normalized.match(INSERT_RE);
+    if (!m) {
+      return {
+        ok: false,
+        message: "Comando não reconhecido. Use o formato: INSERT INTO usuarios (nome, login, perfil) VALUES ('NOME', 'LOGIN', 'PERFIL');"
+      };
+    }
+    return { ok: true, values: { nome: m[1], login: m[2], perfil: m[3] } };
+  }
+
   // Padrões reconhecidos: cada um tem um regex de validação e um "handler" que
   // monta a resposta. Isso evita a necessidade de um parser SQL real.
   const patterns = [
@@ -111,6 +139,8 @@ window.App = window.App || {};
 
   App.DB = {
     tables: tables,
-    runQuery: runQuery
+    runQuery: runQuery,
+    runInsert: runInsert,
+    decryptAdminRecord: decryptAdminRecord
   };
 })();

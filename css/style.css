@@ -405,6 +405,14 @@ input:focus-visible, select:focus-visible, button:focus-visible, [tabindex]:focu
 .db-result { margin-top: 0.7em; font-size: 0.85rem; font-family: var(--font-mono); min-height: 1.4em; }
 .db-result-ok { color: var(--green); }
 .db-result-error { color: var(--red); }
+.decrypt-area:empty { display: none; }
+.decrypt-area { margin-top: 0.9em; }
+.decrypt-reveal {
+  background: rgba(46,230,166,0.08); border: 1px dashed #1f4a3c;
+  border-radius: var(--radius); padding: 0.9em 1em;
+}
+.decrypt-reveal-title { font-size: 0.82rem; color: var(--green); margin-bottom: 0.6em; }
+.decrypt-reveal .db-table { background: transparent; }
 
 /* ---------- Sala CRUD ---------- */
 .crud-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.88rem; }

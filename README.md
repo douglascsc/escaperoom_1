@@ -113,11 +113,11 @@ As respostas ficam sempre marcadas com o comentário `// RESPOSTA:` em `js/puzzl
 | 01 — CSS | `roomCSS.answer` (string) | Troque o valor e o texto do parágrafo `#css-secret` em `roomCSS.render` |
 | 02 — HTML | `roomHTML.answer` (string) | Troque o valor e o número dentro do comentário HTML em `contents.pasta`, dentro de `roomHTML.init` |
 | 03 — JavaScript | função `verificarAcessoSistema` (usuário/senha) — hoje `root` / senha em branco | Troque `USUARIO_ESPERADO` e `SENHA_ESPERADA`, e ajuste a linha correspondente no `.terminal-log` de `roomJS.render` |
-| 04 — SQL | `js/database.js`, array `patterns` | Ajuste os `regex` de cada padrão reconhecido |
-| 05 — CRUD | `roomCRUD.answer` (nome/login/perfil) | Troque os três valores esperados |
+| 04 — SQL | `js/database.js`, array `patterns` (consultas) e `decryptedAdmin` (valores revelados ao descriptografar) | Ajuste os `regex` de cada padrão reconhecido e/ou os valores de `decryptedAdmin` |
+| 05 — CRUD | `roomCRUD.answer` (nome/login/perfil) | Troque os três valores esperados — eles precisam bater com `decryptedAdmin` em `js/database.js` para a sala fazer sentido |
 | Final | calculado a partir de `fragment` de cada sala | Troque o campo `fragment` de cada sala — o código final é sempre a concatenação, na ordem definida por `App.State.ROOM_ORDER` (hoje CSS → HTML → JS → SQL → CRUD), então não precisa recalcular nada manualmente |
 
-Depois de alterar uma resposta, lembre-se de atualizar também as três `hints` daquela sala, para que continuem levando à solução correta.
+Depois de alterar uma resposta, lembre-se de atualizar também as cinco `hints` daquela sala, para que continuem levando à solução correta.
 
 ## Como criar novas salas
 
@@ -146,8 +146,8 @@ A tela mostra, para cada sala:
 - **Sala 01 (CSS)**: código `4816`, escondido por uma classe CSS cujo `color` é igual ao `background` (só aparece selecionando o texto ou inspecionando o elemento). Há um item isca com `display: none` mostrando o código falso `0000`.
 - **Sala 02 (HTML)**: senha `7392`, encontrada em um comentário HTML (`<!-- senha temporária: 7392 -->`) dentro do arquivo "aberto" ao clicar na 📁 pasta. Há um comentário-isca na 🗑️ lixeira (`1111`) e um número-isca no 📄 documento (`0000`/`1234`).
 - **Sala 03 (JavaScript)**: usuário `root` e senha em branco — a mesma convenção do usuário padrão de uma instalação recém-feita do MySQL. Essa dica é dada diretamente no log de boot exibido na sala (e reforçada por um `console.info`); a validação está na função `verificarAcessoSistema`, em `js/puzzles.js`, legível pelas ferramentas de desenvolvedor.
-- **Sala 04 (SQL)**: consulta esperada `SELECT * FROM usuarios WHERE perfil = 'admin';`. A tabela `logs` (`SELECT * FROM logs;`) explica o que aconteceu e revela nome (`ADMIN`), login (`master`) e perfil (`administrador`) corretos para a Sala 05.
-- **Sala 05 (CRUD)**: recriar o usuário com **Nome: ADMIN · Login: master · Perfil: administrador** — todos os três valores vêm do log lido na Sala 04, não é necessário adivinhar.
+- **Sala 04 (SQL)**: consulta esperada `SELECT * FROM usuarios WHERE perfil = 'admin';`, que revela o registro corrompido do admin. A tabela `logs` (`SELECT * FROM logs;`) explica o que aconteceu. Depois de rodar a consulta certa, aparece um botão "🔓 Descriptografar registro" que revela nome (`ADMIN`), login (`master`) e perfil (`administrador`) — só então a sala é marcada como concluída (a consulta sozinha não basta).
+- **Sala 05 (CRUD)**: recriar o usuário rodando `INSERT INTO usuarios (nome, login, perfil) VALUES ('ADMIN', 'master', 'administrador');` no console SQL da sala (a criação não usa mais formulário de campos — só Editar/Excluir de registros existentes usam formulário). Os três valores vêm do registro descriptografado na Sala 04.
 - **Sala final**: o código é a concatenação dos fragmentos revelados ao concluir cada sala anterior, na ordem CSS → HTML → JS → SQL → CRUD (com os valores padrão acima, o código é `37946`).
 
 ## Acessibilidade

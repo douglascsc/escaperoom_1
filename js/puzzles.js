@@ -335,15 +335,15 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
     title: '🗄️ SALA 04 — O BANCO DE DADOS',
     estimatedTime: '7–10 min',
     concepts: ['Tabelas e registros', 'SELECT', 'WHERE', 'Interpretação de consultas SQL'],
-    solvedText: "Você filtrou a tabela usuarios por perfil = 'admin' e descobriu o que aconteceu com o administrador.",
+    solvedText: "Você filtrou a tabela usuarios por perfil = 'admin', encontrou o registro corrompido e o descriptografou.",
     fragment: '4',
-    item: { id: 'chave-sql', nome: '🔐 Chave de Acesso', icone: '🔐', descricao: 'Gerada automaticamente após a consulta SQL bem-sucedida.' },
+    item: { id: 'chave-sql', nome: '🔐 Chave de Acesso', icone: '🔐', descricao: 'Gerada automaticamente após descriptografar o registro do administrador.' },
     hints: [
       'Um dos registros da tabela usuarios está incompleto. Talvez outra tabela explique o que houve com ele.',
       "Use SELECT * FROM tabela; para listar todos os registros de uma tabela. Experimente com usuarios, produtos e logs.",
       'A tabela logs guarda o histórico do que aconteceu com a conta do administrador — vale a pena consultá-la.',
       "A cláusula WHERE filtra registros por uma condição, no formato campo = 'valor'.",
-      "Tente: SELECT * FROM usuarios WHERE perfil = 'admin';"
+      "Tente: SELECT * FROM usuarios WHERE perfil = 'admin'; — depois, use o botão que aparece para descriptografar o registro encontrado."
     ],
     render: function (state) {
       if (state.solvedPuzzles.includes('db')) return renderSolvedView(roomDB);
@@ -376,6 +376,7 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
             <button type="submit" class="btn btn-primary">EXECUTAR</button>
           </form>
           <div id="db-result" class="db-result" role="status"></div>
+          <div id="db-decrypt-area" class="decrypt-area"></div>
         </div>
       </div>`;
     },
@@ -384,6 +385,35 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
       const form = container.querySelector('#db-form');
       const input = container.querySelector('#db-query');
       const result = container.querySelector('#db-result');
+      const decryptArea = container.querySelector('#db-decrypt-area');
+
+      function showDecryptButton() {
+        if (container.querySelector('#db-decrypt-btn')) return; // já exibido
+        decryptArea.innerHTML = '<button type="button" id="db-decrypt-btn" class="btn btn-ghost">🔓 Descriptografar registro</button>';
+        container.querySelector('#db-decrypt-btn').addEventListener('click', function () {
+          App.Game.playSound('unlock');
+          const admin = App.DB.decryptAdminRecord();
+          decryptArea.innerHTML = `
+            <div class="decrypt-reveal">
+              <p class="decrypt-reveal-title">🔓 Registro restaurado (somente leitura — ainda não gravado no banco):</p>
+              <table class="db-table">
+                <thead><tr><th>nome</th><th>login</th><th>perfil</th></tr></thead>
+                <tbody><tr><td>${escapeHTML(admin.nome)}</td><td>${escapeHTML(admin.login)}</td><td>${escapeHTML(admin.perfil)}</td></tr></tbody>
+              </table>
+            </div>`;
+
+          const alreadySolved = App.State.isSolved('db');
+          App.Game.markRoomSolvedKeepView('db');
+          if (!alreadySolved) {
+            const roomEl = container.querySelector('.room');
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = solvedBannerMarkup(roomDB);
+            const banner = wrapper.firstElementChild;
+            roomEl.appendChild(banner);
+            banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        });
+      }
 
       function renderTable(name, rows) {
         if (!rows.length) { tableView.innerHTML = '<p class="db-placeholder">Tabela vazia.</p>'; return; }
@@ -405,19 +435,9 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
           result.className = 'db-result db-result-ok';
           result.textContent = res.message;
           if (res.grants === 'admin_filter') {
-            // Mostra o resultado filtrado (o registro corrompido do admin) e só
-            // então acrescenta o botão de prosseguir — sem substituir a tela
-            // inteira na hora, senão o jogador nunca chega a ver a consulta.
-            const alreadySolved = App.State.isSolved('db');
-            App.Game.markRoomSolvedKeepView('db');
-            if (!alreadySolved) {
-              const roomEl = container.querySelector('.room');
-              const wrapper = document.createElement('div');
-              wrapper.innerHTML = solvedBannerMarkup(roomDB);
-              const banner = wrapper.firstElementChild;
-              roomEl.appendChild(banner);
-              banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
+            // Mostra o registro corrompido e libera o botão de descriptografar —
+            // a sala só é marcada como resolvida quando ele é clicado.
+            showDecryptButton();
           } else if (res.grants === 'logs') {
             App.Game.grantItem('db', { id: 'registro-auditoria', nome: '📄 Registro de Auditoria', icone: '📄', descricao: 'SELO-K19 — comprova a restauração pendente do administrador.' });
           }
@@ -497,18 +517,18 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
     label: 'SALA 05 — O USUÁRIO PERDIDO',
     title: '✏️ SALA 05 — O USUÁRIO PERDIDO',
     estimatedTime: '7–10 min',
-    concepts: ['Create', 'Read', 'Update', 'Delete', 'Formulários e localStorage'],
+    concepts: ['Create via SQL INSERT', 'Read', 'Update', 'Delete', 'Formulários e localStorage'],
     solvedText: 'Você recriou o usuário administrador com os dados corretos: ADMIN / master / administrador.',
     fragment: '6',
     item: { id: 'cartao-acesso', nome: '🪪 Cartão de Acesso', icone: '🪪', descricao: 'Emitido automaticamente ao restaurar o administrador do sistema.' },
     // RESPOSTA: dados exatos do usuário administrador a ser recriado
     answer: { nome: 'admin', login: 'master', perfil: 'administrador' },
     hints: [
-      'O registro do administrador foi apagado — não o sistema inteiro. Use o painel de usuários para recriá-lo.',
-      'Reveja o que a Sala 04 mostrou sobre esse usuário; o registro pode parecer corrompido, mas nem tudo ali é o que aparenta.',
-      'O perfil precisa ser, claramente, o de administrador — não "usuário" nem "operador".',
-      "O login correto, ligado à Sala 04, é 'master'. O nome costuma aparecer em maiúsculas em contas administrativas de sistema.",
-      "Dados exatos: Nome = ADMIN · Login = master · Perfil = administrador."
+      'O registro do administrador foi apagado — não o sistema inteiro. Você precisa recriá-lo com um comando SQL INSERT.',
+      'Você já viu os dados desse usuário na Sala 04, ao descriptografar o registro corrompido — releia o que apareceu lá.',
+      "A sintaxe é: INSERT INTO usuarios (nome, login, perfil) VALUES ('...', '...', '...');",
+      'O nome costuma aparecer em maiúsculas em contas administrativas de sistema, e o perfil precisa ser, claramente, "administrador".',
+      "Dados exatos: INSERT INTO usuarios (nome, login, perfil) VALUES ('ADMIN', 'master', 'administrador');"
     ],
     render: function (state) {
       if (state.solvedPuzzles.includes('crud')) return renderSolvedView(roomCRUD);
@@ -536,7 +556,16 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
           <thead><tr><th>ID</th><th>NOME</th><th>LOGIN</th><th>PERFIL</th><th>AÇÕES</th></tr></thead>
           <tbody id="crud-tbody">${rows}</tbody>
         </table>
-        <button type="button" id="crud-new-btn" class="btn btn-ghost">+ NOVO USUÁRIO</button>
+
+        <div class="sql-console">
+          <p class="terminal-label">SQL INSERT — CRIAR NOVO USUÁRIO</p>
+          <form id="crud-insert-form" class="field-row" autocomplete="off">
+            <label class="sr-only" for="crud-insert-query">Comando INSERT</label>
+            <input id="crud-insert-query" name="query" type="text" placeholder="" spellcheck="false">
+            <button type="submit" class="btn btn-primary">EXECUTAR</button>
+          </form>
+          <div id="crud-insert-result" class="db-result" role="status"></div>
+        </div>
 
         <form id="crud-form" class="crud-form hidden" autocomplete="off">
           <input type="hidden" id="crud-edit-id" value="">
@@ -559,8 +588,8 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
       </div>`;
     },
     init: function (container) {
+      const tbody = container.querySelector('#crud-tbody');
       const form = container.querySelector('#crud-form');
-      const newBtn = container.querySelector('#crud-new-btn');
       const reviewBtn = container.querySelector('#crud-review-db-btn');
       const cancelBtn = container.querySelector('#crud-cancel-btn');
       const feedback = container.querySelector('#crud-feedback');
@@ -568,18 +597,36 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
       const nomeField = container.querySelector('#crud-nome');
       const loginField = container.querySelector('#crud-login');
       const perfilField = container.querySelector('#crud-perfil');
+      const insertForm = container.querySelector('#crud-insert-form');
+      const insertInput = container.querySelector('#crud-insert-query');
+      const insertResult = container.querySelector('#crud-insert-result');
+
+      function rowMarkup(user) {
+        return `<td>${user.id}</td><td>${escapeHTML(user.nome)}</td><td>${escapeHTML(user.login)}</td><td>${escapeHTML(user.perfil)}</td>
+          <td class="crud-actions">
+            <button type="button" class="btn btn-mini" data-action="edit" data-id="${user.id}">EDITAR</button>
+            <button type="button" class="btn btn-mini btn-mini-danger" data-action="delete" data-id="${user.id}">EXCLUIR</button>
+          </td>`;
+      }
+
+      function appendUserRow(user) {
+        const tr = document.createElement('tr');
+        tr.dataset.id = user.id;
+        tr.innerHTML = rowMarkup(user);
+        tbody.appendChild(tr);
+      }
+
+      function updateUserRow(user) {
+        const tr = tbody.querySelector('tr[data-id="' + user.id + '"]');
+        if (tr) tr.innerHTML = rowMarkup(user);
+      }
 
       function openForm(user) {
         form.classList.remove('hidden');
-        if (user) {
-          editIdField.value = user.id;
-          nomeField.value = user.nome;
-          loginField.value = user.login;
-          perfilField.value = user.perfil;
-        } else {
-          editIdField.value = '';
-          form.reset();
-        }
+        editIdField.value = user.id;
+        nomeField.value = user.nome;
+        loginField.value = user.login;
+        perfilField.value = user.perfil;
         nomeField.focus();
       }
 
@@ -592,10 +639,9 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
         const a = roomCRUD.answer;
         return user.nome.trim().toLowerCase() === a.nome &&
           user.login.trim().toLowerCase() === a.login &&
-          user.perfil === a.perfil;
+          user.perfil.trim().toLowerCase() === a.perfil;
       }
 
-      newBtn.addEventListener('click', function () { App.Game.playSound('click'); openForm(null); });
       cancelBtn.addEventListener('click', function () { App.Game.playSound('click'); closeForm(); });
       if (reviewBtn) {
         reviewBtn.addEventListener('click', function () {
@@ -604,34 +650,57 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
         });
       }
 
-      container.querySelector('#crud-tbody').addEventListener('click', function (e) {
+      tbody.addEventListener('click', function (e) {
         const btn = e.target.closest('button');
         if (!btn) return;
         const id = Number(btn.dataset.id);
         const user = App.State.get().crudUsers.find(function (u) { return u.id === id; });
+        if (!user) return;
         if (btn.dataset.action === 'edit') {
           App.Game.playSound('click');
           openForm(user);
         } else if (btn.dataset.action === 'delete') {
           App.Game.playSound('click');
           App.State.crudDelete(id);
-          App.Game.rerenderRoom();
+          const tr = tbody.querySelector('tr[data-id="' + id + '"]');
+          if (tr) tr.remove();
         }
       });
 
+      // CREATE — via comando SQL INSERT, não por campos abertos.
+      insertForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const res = App.DB.runInsert(insertInput.value);
+        if (!res.ok) {
+          App.Game.playSound('error');
+          App.Game.registerMistake('crud');
+          insertResult.className = 'db-result db-result-error';
+          insertResult.textContent = res.message;
+          return;
+        }
+        const saved = App.State.crudCreate(res.values);
+        App.Game.playSound('click');
+        insertResult.className = 'db-result db-result-ok';
+        insertResult.textContent = 'Registro inserido na tabela usuarios (id ' + saved.id + ').';
+        appendUserRow(saved);
+        insertInput.value = '';
+
+        if (checkAdminMatch(saved)) {
+          App.Game.playSound('success');
+          App.Game.completeRoom('crud');
+        }
+      });
+
+      // UPDATE — ainda por formulário de campos, para editar um registro existente.
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         const payload = { nome: nomeField.value.trim(), login: loginField.value.trim(), perfil: perfilField.value };
         if (!payload.nome || !payload.login) return;
 
-        let saved;
-        if (editIdField.value) {
-          saved = App.State.crudUpdate(Number(editIdField.value), payload);
-        } else {
-          saved = App.State.crudCreate(payload);
-        }
+        const saved = App.State.crudUpdate(Number(editIdField.value), payload);
         App.Game.playSound('click');
         closeForm();
+        updateUserRow(saved);
 
         if (checkAdminMatch(saved)) {
           App.Game.playSound('success');
@@ -639,9 +708,8 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
           feedback.className = 'feedback feedback-success';
           App.Game.completeRoom('crud');
         } else {
-          feedback.textContent = 'Usuário salvo, mas o sistema ainda não reconhece um administrador válido.';
+          feedback.textContent = 'Usuário atualizado, mas o sistema ainda não reconhece um administrador válido.';
           feedback.className = 'feedback feedback-error';
-          App.Game.rerenderRoom();
         }
       });
     }
