@@ -350,12 +350,12 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
         <div class="db-layout">
           <div class="db-tables">
             <p class="db-tables-title">TABELAS</p>
-            <button type="button" class="table-btn" data-table="usuarios">📁 usuarios</button>
-            <button type="button" class="table-btn" data-table="produtos">📁 produtos</button>
-            <button type="button" class="table-btn" data-table="logs">📁 logs</button>
+            <span class="table-chip">📁 usuarios</span>
+            <span class="table-chip">📁 produtos</span>
+            <span class="table-chip">📁 logs</span>
           </div>
           <div id="db-table-view" class="db-table-view" aria-live="polite">
-            <p class="db-placeholder">Selecione uma tabela para visualizar os registros.</p>
+            <p class="db-placeholder">Use um comando SQL para consultar uma tabela.</p>
           </div>
         </div>
 
@@ -386,14 +386,6 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
         html += '</tbody></table>';
         tableView.innerHTML = html;
       }
-
-      container.querySelectorAll('.table-btn').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          App.Game.playSound('click');
-          const name = btn.dataset.table;
-          renderTable(name, App.DB.tables[name]);
-        });
-      });
 
       form.addEventListener('submit', function (e) {
         e.preventDefault();
