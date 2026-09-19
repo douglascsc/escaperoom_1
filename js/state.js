@@ -7,7 +7,9 @@ window.App = window.App || {};
 
 (function () {
   const STORAGE_KEY = 'op404_gameState_v1';
-  const TOTAL_TIME = 45 * 60; // 45 minutos, em segundos
+  const TOTAL_TIME = 30 * 60; // 30 minutos, em segundos
+  const EXTRA_TIME = 15 * 60; // bônus de tempo extra, concedido uma única vez, sob ação do jogador
+  const EXTRA_TIME_THRESHOLD = 5 * 60; // a partir de quantos segundos restantes o botão de tempo extra aparece
 
   // Ordem oficial das salas. "intro" e "victory"/"defeat" não contam como salas jogáveis.
   const ROOM_ORDER = ['css', 'html', 'js', 'db', 'crud', 'final'];
@@ -33,7 +35,9 @@ window.App = window.App || {};
         { id: 2, nome: 'João Pedro', login: 'joao', perfil: 'usuário' }
       ],
       crudNextId: 3,
-      finishTime: null // segundos decorridos quando o jogo terminou
+      finishTime: null, // segundos decorridos quando o jogo terminou
+      extraTimeUsed: false,
+      teamMembers: [] // nomes informados na tela inicial (1 a 5)
     };
   }
 
@@ -163,6 +167,23 @@ window.App = window.App || {};
     return gameState.soundOn;
   }
 
+  function setTeamMembers(names) {
+    gameState.teamMembers = (names || []).map(function (n) { return String(n).trim(); }).filter(Boolean).slice(0, 5);
+    save();
+  }
+
+  function canUseExtraTime() {
+    return !gameState.extraTimeUsed && !gameState.finished && gameState.timeRemaining <= EXTRA_TIME_THRESHOLD;
+  }
+
+  function useExtraTime() {
+    if (gameState.extraTimeUsed) return false;
+    gameState.extraTimeUsed = true;
+    gameState.timeRemaining += EXTRA_TIME;
+    save();
+    return true;
+  }
+
   // --- CRUD (Sala 05) ---
   function crudCreate(user) {
     const record = {
@@ -193,6 +214,8 @@ window.App = window.App || {};
 
   App.State = {
     TOTAL_TIME: TOTAL_TIME,
+    EXTRA_TIME: EXTRA_TIME,
+    EXTRA_TIME_THRESHOLD: EXTRA_TIME_THRESHOLD,
     ROOM_ORDER: ROOM_ORDER,
     get: function () { return gameState; },
     load: load,
@@ -212,6 +235,9 @@ window.App = window.App || {};
     nextRoomAfter: nextRoomAfter,
     finishGame: finishGame,
     toggleSound: toggleSound,
+    setTeamMembers: setTeamMembers,
+    canUseExtraTime: canUseExtraTime,
+    useExtraTime: useExtraTime,
     crudCreate: crudCreate,
     crudUpdate: crudUpdate,
     crudDelete: crudDelete

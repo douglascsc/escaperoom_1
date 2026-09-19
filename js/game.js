@@ -18,7 +18,8 @@ window.App = window.App || {};
     [
       'screen-intro', 'screen-game', 'screen-victory', 'screen-defeat',
       'btn-start', 'btn-continue',
-      'room-label', 'timer', 'btn-inventory', 'inventory-count', 'btn-hint',
+      'team-inputs', 'btn-add-member', 'team-form-error',
+      'room-label', 'timer', 'btn-extra-time', 'btn-inventory', 'inventory-count', 'btn-hint',
       'btn-sound', 'btn-restart', 'progress-map', 'room-content',
       'panel-inventory', 'inventory-list', 'panel-hint', 'hint-body',
       'teacher-modal', 'teacher-body', 'recap-modal', 'recap-body',
@@ -42,6 +43,43 @@ window.App = window.App || {};
     const m = Math.floor(s / 60);
     const r = s % 60;
     return String(m).padStart(2, '0') + ':' + String(r).padStart(2, '0');
+  }
+
+  function escapeHTML(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  // ---------------------------------------------------------------------
+  // Formulário de integrantes da equipe (tela inicial)
+  // ---------------------------------------------------------------------
+  const MAX_TEAM_MEMBERS = 5;
+
+  function updateAddMemberButton() {
+    const count = el.teamInputs.querySelectorAll('.team-input-row').length;
+    el.btnAddMember.disabled = count >= MAX_TEAM_MEMBERS;
+    el.btnAddMember.textContent = count >= MAX_TEAM_MEMBERS ? 'Máximo de 5 integrantes' : '+ Adicionar integrante';
+  }
+
+  function addTeamInputRow() {
+    const count = el.teamInputs.querySelectorAll('.team-input-row').length;
+    if (count >= MAX_TEAM_MEMBERS) return;
+    const idx = count + 1;
+    const row = document.createElement('div');
+    row.className = 'team-input-row';
+    row.innerHTML = '<input type="text" class="team-input" placeholder="Nome do integrante ' + idx + '" aria-label="Nome do integrante ' + idx + '" maxlength="40">' +
+      '<button type="button" class="icon-btn team-remove-btn" aria-label="Remover integrante ' + idx + '">✕</button>';
+    el.teamInputs.appendChild(row);
+    row.querySelector('.team-remove-btn').addEventListener('click', function () {
+      row.remove();
+      updateAddMemberButton();
+    });
+    updateAddMemberButton();
+  }
+
+  function collectTeamNames() {
+    return Array.from(el.teamInputs.querySelectorAll('.team-input'))
+      .map(function (input) { return input.value.trim(); })
+      .filter(Boolean);
   }
 
   // ---------------------------------------------------------------------
@@ -109,6 +147,7 @@ window.App = window.App || {};
     el.timer.textContent = fmtTime(state.timeRemaining);
     el.timer.classList.toggle('timer-urgent', state.timeRemaining <= 600 && state.timeRemaining > 180);
     el.timer.classList.toggle('timer-critical', state.timeRemaining <= 180);
+    el.btnExtraTime.classList.toggle('hidden', !App.State.canUseExtraTime());
 
     const count = state.inventory.length;
     el.inventoryCount.textContent = String(count);
@@ -160,6 +199,19 @@ window.App = window.App || {};
     renderRoom();
   }
 
+  // Como completeRoom(), mas sem substituir o conteúdo da sala por inteiro —
+  // usado quando a própria sala precisa continuar mostrando algo (ex.: o
+  // resultado de uma consulta SQL) antes de o jogador clicar em "Prosseguir".
+  function markRoomSolvedKeepView(roomId) {
+    const room = App.Puzzles.rooms[roomId];
+    const wasNew = !App.State.isSolved(roomId);
+    App.State.markSolved(roomId, room.fragment);
+    if (room.item) App.State.addInventoryItem(room.item);
+    if (wasNew) toast('Sala concluída: ' + room.label, 'success');
+    updateHUD();
+    updateProgressMap();
+  }
+
   function grantItem(roomId, item) {
     const already = App.State.hasItem(item.id);
     App.State.addInventoryItem(item);
@@ -203,15 +255,42 @@ window.App = window.App || {};
     else closePanel(panel);
   }
 
+  function findRoomForItem(itemId) {
+    const rooms = App.Puzzles.rooms;
+    for (const roomId in rooms) {
+      if (rooms[roomId].item && rooms[roomId].item.id === itemId) return rooms[roomId];
+    }
+    return null;
+  }
+
   function renderInventory() {
     const state = App.State.get();
-    if (!state.inventory.length) {
-      el.inventoryList.innerHTML = '<p class="empty-msg">Nenhum item coletado ainda. Continue investigando.</p>';
-      return;
+    const fragmentSteps = state.inventory
+      .map(function (item) { const room = findRoomForItem(item.id); return room ? room.fragment : null; })
+      .filter(Boolean);
+
+    let html = '';
+    if (fragmentSteps.length) {
+      html += '<div class="fragment-sequence">' +
+        '<p class="fragment-sequence-label">Sequência de fragmentos descobertos (na ordem certa para a Sala de Controle)</p>' +
+        '<p class="fragment-sequence-value">' + fragmentSteps.join(' → ') + '</p>' +
+        '</div>';
     }
-    el.inventoryList.innerHTML = state.inventory.map(function (item) {
-      return '<div class="item-card"><span class="item-card-icon">' + item.icone + '</span><div><p class="item-card-name">' + item.nome + '</p><p class="item-card-desc">' + item.descricao + '</p></div></div>';
-    }).join('');
+
+    if (!state.inventory.length) {
+      html += '<p class="empty-msg">Nenhum item coletado ainda. Continue investigando.</p>';
+    } else {
+      html += state.inventory.map(function (item, idx) {
+        const room = findRoomForItem(item.id);
+        const fragment = room ? room.fragment : null;
+        return '<div class="item-card"><span class="item-card-icon">' + item.icone + '</span><div>' +
+          '<p class="item-card-name">' + (idx + 1) + '. ' + item.nome + '</p>' +
+          (fragment ? '<p class="item-card-fragment">Fragmento do código final: <strong>' + fragment + '</strong></p>' : '') +
+          '<p class="item-card-desc">' + item.descricao + '</p>' +
+          '</div></div>';
+      }).join('');
+    }
+    el.inventoryList.innerHTML = html;
   }
 
   function renderHintPanel() {
@@ -272,7 +351,7 @@ window.App = window.App || {};
 
   function openTeacherModal() {
     el.teacherBody.innerHTML =
-      '<p class="teacher-intro">Sequência esperada: CSS → HTML → JavaScript → Banco de Dados/SQL → CRUD → Sala de Controle. Duração estimada total: ~45 minutos.</p>' +
+      '<p class="teacher-intro">Sequência esperada: CSS → HTML → JavaScript → Banco de Dados/SQL → CRUD → Sala de Controle. Duração estimada total: ~30 minutos (pode chegar a 45 minutos se o jogador acionar o tempo extra opcional, liberado nos últimos 5 minutos).</p>' +
       buildInfoSections(true);
     el.teacherModal.classList.remove('hidden');
   }
@@ -329,9 +408,10 @@ window.App = window.App || {};
   // Fim de jogo
   // ---------------------------------------------------------------------
   function computeRank(hints, mistakes) {
-    if (hints <= 1 && mistakes <= 2) return 'Mestre do Sistema';
-    if (hints <= 3 && mistakes <= 5) return 'Hacker';
-    if (hints <= 6) return 'Analista';
+    // Limiares calibrados para até 5 pistas por sala (30 no total).
+    if (hints <= 2 && mistakes <= 2) return 'Mestre do Sistema';
+    if (hints <= 5 && mistakes <= 5) return 'Hacker';
+    if (hints <= 10) return 'Analista';
     return 'Investigador';
   }
 
@@ -349,10 +429,14 @@ window.App = window.App || {};
       (state.solvedPuzzles.includes('final') ? 1 : 0);
     const total = App.State.ROOM_ORDER.length;
     const elapsed = state.finishTime !== null ? state.finishTime : (App.State.TOTAL_TIME - state.timeRemaining);
+    const teamLine = state.teamMembers && state.teamMembers.length
+      ? '<p>Equipe: <strong>' + state.teamMembers.map(escapeHTML).join(', ') + '</strong></p>'
+      : '';
 
     if (victory) {
       el.victoryRank.textContent = computeRank(hints, state.mistakes);
       el.victoryStats.innerHTML =
+        teamLine +
         '<p>Tempo: <strong>' + fmtTime(elapsed) + '</strong></p>' +
         '<p>Desafios resolvidos: <strong>' + solved + '/' + total + '</strong></p>' +
         '<p>Pistas utilizadas: <strong>' + hints + '</strong></p>' +
@@ -360,6 +444,7 @@ window.App = window.App || {};
       showScreen('screen-victory');
     } else {
       el.defeatStats.innerHTML =
+        teamLine +
         '<p>Salas concluídas: <strong>' + solved + '/' + total + '</strong></p>' +
         '<p>Pistas utilizadas: <strong>' + hints + '</strong></p>' +
         '<p>Tentativas incorretas: <strong>' + state.mistakes + '</strong></p>';
@@ -384,12 +469,25 @@ window.App = window.App || {};
   }
 
   function wireEvents() {
+    el.btnAddMember.addEventListener('click', function () {
+      playSound('click');
+      addTeamInputRow();
+    });
+
     el.btnStart.addEventListener('click', function () {
+      const names = collectTeamNames();
+      if (!names.length) {
+        el.teamFormError.textContent = 'Informe o nome de pelo menos 1 integrante da equipe.';
+        return;
+      }
+      el.teamFormError.textContent = '';
+
       const state = App.State.get();
       if (state.started && !state.finished) {
         if (!window.confirm('Isso vai apagar seu progresso atual e começar uma nova missão. Continuar?')) return;
         App.State.reset();
       }
+      App.State.setTeamMembers(names);
       App.State.startGame();
       enterGame();
     });
@@ -408,6 +506,12 @@ window.App = window.App || {};
       const on = App.State.toggleSound();
       updateHUD();
       if (on) playSound('click');
+    });
+    el.btnExtraTime.addEventListener('click', function () {
+      if (!App.State.useExtraTime()) return;
+      playSound('unlock');
+      toast('Protocolo de contingência ativado: +15 minutos.', 'success');
+      updateHUD();
     });
     el.btnRestart.addEventListener('click', function () {
       if (window.confirm('Tem certeza que deseja reiniciar a missão? Todo o progresso será perdido.')) {
@@ -464,6 +568,7 @@ window.App = window.App || {};
   App.Game = {
     playSound: playSound,
     completeRoom: completeRoom,
+    markRoomSolvedKeepView: markRoomSolvedKeepView,
     grantItem: grantItem,
     registerMistake: registerMistake,
     rerenderRoom: rerenderRoom,

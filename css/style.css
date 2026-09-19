@@ -137,6 +137,22 @@ input:focus-visible, select:focus-visible, button:focus-visible, [tabindex]:focu
 }
 #btn-continue { margin-top: 0.8em; display: block; margin-left: auto; margin-right: auto; }
 
+.team-form {
+  text-align: left;
+  max-width: 420px;
+  margin: 0 auto 1.6em;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 1.2em 1.4em;
+}
+.team-form-label { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-faint); letter-spacing: 0.06em; margin-bottom: 0.8em; }
+.team-inputs { display: flex; flex-direction: column; gap: 0.6em; margin-bottom: 0.8em; }
+.team-input-row { display: flex; align-items: center; gap: 0.5em; }
+.team-input { flex: 1; }
+.team-remove-btn { flex: 0 0 auto; }
+.team-form .feedback { margin-top: 0.4em; min-height: 0; }
+
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(14px); }
   to { opacity: 1; transform: translateY(0); }
@@ -156,7 +172,7 @@ input:focus-visible, select:focus-visible, button:focus-visible, [tabindex]:focu
 .game-title { font-weight: 700; font-size: 0.78rem; letter-spacing: 0.08em; color: var(--text-faint); }
 .room-label { font-family: var(--font-mono); font-size: 0.92rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.hud-center { flex: 0 0 auto; }
+.hud-center { flex: 0 0 auto; display: flex; align-items: center; gap: 0.6rem; }
 .timer {
   font-family: var(--font-mono);
   font-size: 1.7rem;
@@ -170,6 +186,19 @@ input:focus-visible, select:focus-visible, button:focus-visible, [tabindex]:focu
 }
 .timer-urgent { color: var(--amber); border-color: #4a3a1c; }
 .timer-critical { color: var(--red); border-color: #4a2020; animation: pulse-soft 1.6s ease-in-out infinite; }
+.btn-extra-time {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--amber);
+  background: rgba(245,185,66,0.1);
+  border: 1px solid #4a3a1c;
+  border-radius: 8px;
+  padding: 0.5em 0.8em;
+  cursor: pointer;
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+.btn-extra-time:hover { background: rgba(245,185,66,0.18); }
 @keyframes pulse-soft {
   0%, 100% { opacity: 1; } 50% { opacity: 0.72; }
 }
@@ -413,6 +442,13 @@ input:focus-visible, select:focus-visible, button:focus-visible, [tabindex]:focu
 .item-card-icon { font-size: 1.6rem; }
 .item-card-name { font-weight: 700; margin-bottom: 0.15em; }
 .item-card-desc { font-size: 0.82rem; color: var(--text-dim); margin: 0; }
+.item-card-fragment { font-family: var(--font-mono); font-size: 0.78rem; color: var(--green); margin: 0.15em 0; }
+.fragment-sequence {
+  background: rgba(46,230,166,0.08); border: 1px dashed #1f4a3c;
+  border-radius: var(--radius); padding: 0.9em 1em; margin-bottom: 1.2em;
+}
+.fragment-sequence-label { font-size: 0.76rem; color: var(--text-dim); margin-bottom: 0.4em; }
+.fragment-sequence-value { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700; color: var(--green); letter-spacing: 0.08em; margin: 0; }
 .fragment-card {
   display: inline-flex; align-items: center; gap: 0.6em;
   background: rgba(46,230,166,0.08); border: 1px dashed #1f4a3c;

@@ -20,7 +20,17 @@
       <div class="intro-lines">
         <p>&gt; O sistema central foi comprometido.</p>
         <p>&gt; Todas as portas foram bloqueadas.</p>
-        <p>&gt; Você tem <strong>45 minutos</strong> para recuperar o acesso.</p>
+        <p>&gt; Você tem <strong>30 minutos</strong> para recuperar o acesso.</p>
+      </div>
+      <div id="team-form" class="team-form">
+        <p class="team-form-label">Integrantes da equipe (1 a 5)</p>
+        <div id="team-inputs" class="team-inputs">
+          <div class="team-input-row">
+            <input type="text" class="team-input" placeholder="Nome do integrante 1" aria-label="Nome do integrante 1" maxlength="40">
+          </div>
+        </div>
+        <button type="button" id="btn-add-member" class="btn btn-ghost btn-mini">+ Adicionar integrante</button>
+        <p id="team-form-error" class="feedback feedback-error" role="alert"></p>
       </div>
       <button id="btn-start" class="btn btn-primary btn-lg">INICIAR MISSÃO</button>
       <button id="btn-continue" class="btn btn-ghost hidden">CONTINUAR MISSÃO EM ANDAMENTO</button>
@@ -36,7 +46,8 @@
         <span id="room-label" class="room-label">SALA 01 — A INTERFACE INVISÍVEL</span>
       </div>
       <div class="hud-center">
-        <div id="timer" class="timer" role="timer" aria-label="Tempo restante da missão">45:00</div>
+        <div id="timer" class="timer" role="timer" aria-label="Tempo restante da missão">30:00</div>
+        <button id="btn-extra-time" type="button" class="btn-extra-time hidden">⏱ +15 min</button>
       </div>
       <div class="hud-right">
         <button id="btn-inventory" type="button" class="hud-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel-inventory">

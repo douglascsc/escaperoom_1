@@ -22,30 +22,32 @@ window.App = window.App || {};
       .replace(/>/g, '&gt;');
   }
 
-  function renderSolvedView(room) {
+  function solvedBannerMarkup(room) {
     const item = room.item;
     return `
-      <div class="room room-solved">
-        <div class="solved-banner">
-          <p class="solved-kicker">✅ DESAFIO CONCLUÍDO</p>
-          <h2 class="solved-title">${room.title}</h2>
-          <p class="solved-text">${room.solvedText}</p>
-          ${item ? `
-          <div class="item-card">
-            <span class="item-card-icon">${item.icone}</span>
-            <div>
-              <p class="item-card-name">${item.nome}</p>
-              <p class="item-card-desc">${item.descricao}</p>
-            </div>
-          </div>` : ''}
-          ${room.fragment ? `
-          <div class="fragment-card">
-            <span class="fragment-label">Fragmento do código final</span>
-            <span class="fragment-value">${room.fragment}</span>
-          </div>` : ''}
-          <button type="button" class="btn btn-primary" data-action="continue-room" data-room="${room.id}">Prosseguir →</button>
-        </div>
+      <div class="solved-banner">
+        <p class="solved-kicker">✅ DESAFIO CONCLUÍDO</p>
+        <h2 class="solved-title">${room.title}</h2>
+        <p class="solved-text">${room.solvedText}</p>
+        ${item ? `
+        <div class="item-card">
+          <span class="item-card-icon">${item.icone}</span>
+          <div>
+            <p class="item-card-name">${item.nome}</p>
+            <p class="item-card-desc">${item.descricao}</p>
+          </div>
+        </div>` : ''}
+        ${room.fragment ? `
+        <div class="fragment-card">
+          <span class="fragment-label">Fragmento do código final</span>
+          <span class="fragment-value">${room.fragment}</span>
+        </div>` : ''}
+        <button type="button" class="btn btn-primary" data-action="continue-room" data-room="${room.id}">Prosseguir →</button>
       </div>`;
+  }
+
+  function renderSolvedView(room) {
+    return `<div class="room room-solved">${solvedBannerMarkup(room)}</div>`;
   }
 
   // ---------------------------------------------------------------------
@@ -65,7 +67,9 @@ window.App = window.App || {};
     hints: [
       'Nem tudo que existe em uma página precisa estar visível. Alguns objetos da sala guardam arquivos — abra todos.',
       'Um dos arquivos que você abre é um relatório de sistema. Ferramentas de desenvolvedor (botão direito → Inspecionar, ou F12) mostram o que existe por trás do texto exibido.',
-      'Procure por comentários no código-fonte do relatório — eles começam com <!-- e terminam com -->. Existe mais de um número escrito por aí; só um deles é a senha atual.'
+      'No painel de Elementos do DevTools, expanda as tags clicando nas setinhas ▶ até o fim — parte do conteúdo pode estar recolhida.',
+      'Procure por comentários no código-fonte do relatório — eles começam com <!-- e terminam com -->.',
+      'Existe mais de um comentário escondido pelos objetos da sala; só o que está dentro da 📁 pasta tem a senha atual — os outros são iscas.'
     ],
     render: function (state) {
       if (state.solvedPuzzles.includes('html')) return renderSolvedView(roomHTML);
@@ -182,9 +186,11 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
     // RESPOSTA: código escondido por CSS
     answer: '4816',
     hints: [
-      'Nem tudo que existe em uma página precisa estar visível. Uma cor de texto pode estar "camuflada" propositalmente.',
+      'Nem tudo que existe em uma página precisa estar visível — algumas informações são propositalmente camufladas.',
+      'Um texto pode estar realmente presente na página mesmo que você não consiga enxergá-lo a olho nu.',
       'Tente selecionar todo o conteúdo da tela (Ctrl+A) ou clique com o botão direito em cima do painel e escolha "Inspecionar".',
-      'Procure, no painel de estilos do DevTools, por uma classe CSS cuja propriedade color é igual à propriedade background. O texto está lá, só não aparece.'
+      'No painel de Estilos do DevTools, observe as propriedades color e background do elemento suspeito.',
+      'A classe do texto escondido tem color igual a background — o código real é o que aparece como "CÓDIGO: 4816"; outro número que você encontrar por aí tem display: none e é uma isca.'
     ],
     render: function (state) {
       if (state.solvedPuzzles.includes('css')) return renderSolvedView(roomCSS);
@@ -207,7 +213,6 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
           <p class="css-line">Próxima verificação automática em 12 minutos.</p>
         </div>
 
-        <p class="room-tip">💭 Nem tudo que existe nesta tela está sendo mostrado a olho nu. Talvez valha a pena tentar "pegar" todo o conteúdo da página de uma vez.</p>
 
         <form id="css-form" class="field-row" autocomplete="off">
           <label class="sr-only" for="css-codigo">Código secreto</label>
@@ -265,6 +270,8 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
     hints: [
       'Sistemas de administração antigos, mal configurados, costumam usar convenções conhecidas de outros sistemas — releia o log de inicialização exibido na tela.',
       'Pense no usuário padrão mais famoso de uma instalação recém-feita de um banco de dados MySQL.',
+      'O usuário desse painel também é "root" — mas releia com atenção o que o log diz sobre a senha.',
+      'Uma instalação recém-feita do MySQL, por padrão, não vem com senha nenhuma para o root.',
       'Usuário: root — Senha: deixe o campo em branco e clique em ENTRAR.'
     ],
     render: function (state) {
@@ -334,7 +341,9 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
     hints: [
       'Um dos registros da tabela usuarios está incompleto. Talvez outra tabela explique o que houve com ele.',
       "Use SELECT * FROM tabela; para listar todos os registros de uma tabela. Experimente com usuarios, produtos e logs.",
-      "A cláusula WHERE filtra registros por uma condição. Tente: SELECT * FROM usuarios WHERE perfil = 'admin';"
+      'A tabela logs guarda o histórico do que aconteceu com a conta do administrador — vale a pena consultá-la.',
+      "A cláusula WHERE filtra registros por uma condição, no formato campo = 'valor'.",
+      "Tente: SELECT * FROM usuarios WHERE perfil = 'admin';"
     ],
     render: function (state) {
       if (state.solvedPuzzles.includes('db')) return renderSolvedView(roomDB);
@@ -396,7 +405,19 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
           result.className = 'db-result db-result-ok';
           result.textContent = res.message;
           if (res.grants === 'admin_filter') {
-            App.Game.completeRoom('db');
+            // Mostra o resultado filtrado (o registro corrompido do admin) e só
+            // então acrescenta o botão de prosseguir — sem substituir a tela
+            // inteira na hora, senão o jogador nunca chega a ver a consulta.
+            const alreadySolved = App.State.isSolved('db');
+            App.Game.markRoomSolvedKeepView('db');
+            if (!alreadySolved) {
+              const roomEl = container.querySelector('.room');
+              const wrapper = document.createElement('div');
+              wrapper.innerHTML = solvedBannerMarkup(roomDB);
+              const banner = wrapper.firstElementChild;
+              roomEl.appendChild(banner);
+              banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
           } else if (res.grants === 'logs') {
             App.Game.grantItem('db', { id: 'registro-auditoria', nome: '📄 Registro de Auditoria', icone: '📄', descricao: 'SELO-K19 — comprova a restauração pendente do administrador.' });
           }
@@ -484,7 +505,9 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
     answer: { nome: 'admin', login: 'master', perfil: 'administrador' },
     hints: [
       'O registro do administrador foi apagado — não o sistema inteiro. Use o painel de usuários para recriá-lo.',
-      "A consulta aos logs (Sala 04) indicou o login correto: 'master'. O perfil precisa ser, claramente, o de administrador.",
+      'Reveja o que a Sala 04 mostrou sobre esse usuário; o registro pode parecer corrompido, mas nem tudo ali é o que aparenta.',
+      'O perfil precisa ser, claramente, o de administrador — não "usuário" nem "operador".',
+      "O login correto, ligado à Sala 04, é 'master'. O nome costuma aparecer em maiúsculas em contas administrativas de sistema.",
       "Dados exatos: Nome = ADMIN · Login = master · Perfil = administrador."
     ],
     render: function (state) {
@@ -638,7 +661,9 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
     item: null,
     hints: [
       'Você não precisa adivinhar. As respostas já estão com você — reveja seu inventário (🎒).',
+      'Cada sala concluída acrescentou um item ao seu inventário — e cada item guarda um número.',
       'Cada sala revelou um fragmento numérico ao ser concluída.',
+      'A ordem importa: é a ordem em que você resolveu as salas, não a numeração exibida em cada uma.',
       'Combine os fragmentos na ordem em que foram descobertos: CSS, HTML, JavaScript, Banco de Dados, CRUD.'
     ],
     computeAnswer: function (state) {

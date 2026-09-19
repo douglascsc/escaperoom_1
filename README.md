@@ -2,7 +2,7 @@
 
 Escape Room digital, educativo e jogável, sobre HTML, CSS, JavaScript, Banco de Dados, SQL e CRUD.
 
-> O sistema central foi comprometido. Todas as portas foram bloqueadas. Você tem 45 minutos para recuperar o acesso — investigando código, e não respondendo um questionário.
+> O sistema central foi comprometido. Todas as portas foram bloqueadas. Você tem 30 minutos para recuperar o acesso — investigando código, e não respondendo um questionário.
 
 ## Sumário
 
@@ -136,10 +136,10 @@ A tela mostra, para cada sala:
 
 - resposta esperada;
 - conceitos de programação trabalhados;
-- as três pistas, na ordem em que são reveladas;
+- as cinco pistas, na ordem em que são reveladas;
 - tempo estimado.
 
-**Sequência esperada**: CSS → HTML → JavaScript → Banco de Dados/SQL → CRUD → Sala de Controle (final), com duração total estimada de ~45 minutos.
+**Sequência esperada**: CSS → HTML → JavaScript → Banco de Dados/SQL → CRUD → Sala de Controle (final), com duração total estimada de ~30 minutos. Nos últimos 5 minutos, um botão de tempo extra (+15 min, uso único) fica disponível no cabeçalho — o jogador precisa clicar nele, não é aplicado automaticamente.
 
 **Respostas de referência** (a fonte da verdade é sempre `js/puzzles.js` e `js/database.js`, caso o professor tenha personalizado o jogo):
 
