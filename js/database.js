@@ -8,8 +8,8 @@ window.App = window.App || {};
 
 (function () {
   // ID do registro corrompido do administrador na tabela usuarios. A Sala 05
-  // parte deste mesmo conjunto de usuários (ver js/state.js) e só permite
-  // editar/excluir esta linha — as demais são só contexto.
+  // parte deste mesmo conjunto de usuários (ver js/state.js) — é esse o
+  // registro que o jogador precisa corrigir (UPDATE) ou substituir (INSERT).
   const CORRUPTED_ADMIN_ID = 4;
 
   const tables = {
@@ -69,6 +69,45 @@ window.App = window.App || {};
       };
     }
     return { ok: true, values: { nome: m[1], login: m[2], perfil: m[3] } };
+  }
+
+  // Interpretador controlado para o UPDATE da Sala 05 — reconhece apenas o
+  // formato UPDATE usuarios SET nome = '...', login = '...', perfil = '...'
+  // WHERE id = N, com as colunas nessa ordem fixa. Não é um parser SQL genérico.
+  const UPDATE_RE = /^update\s+usuarios\s+set\s+nome\s*=\s*'([^']*)'\s*,\s*login\s*=\s*'([^']*)'\s*,\s*perfil\s*=\s*'([^']*)'\s+where\s+id\s*=\s*(\d+)$/i;
+
+  function runUpdate(raw) {
+    if (!raw || !raw.trim()) {
+      return { ok: false, message: 'Digite um comando UPDATE antes de executar.' };
+    }
+    const normalized = raw.trim().replace(/;+\s*$/, '').replace(/\s+/g, ' ').replace(/"/g, "'");
+    const m = normalized.match(UPDATE_RE);
+    if (!m) {
+      return {
+        ok: false,
+        message: "Comando não reconhecido. Use o formato: UPDATE usuarios SET nome = 'NOME', login = 'LOGIN', perfil = 'PERFIL' WHERE id = ID;"
+      };
+    }
+    return { ok: true, id: Number(m[4]), values: { nome: m[1], login: m[2], perfil: m[3] } };
+  }
+
+  // Ponto único de entrada para o console SQL da Sala 05: reconhece um
+  // comando INSERT ou UPDATE na tabela usuarios e delega para o parser certo.
+  function runCrudCommand(raw) {
+    if (!raw || !raw.trim()) {
+      return { ok: false, message: 'Digite um comando SQL antes de executar.' };
+    }
+    const normalized = raw.trim().replace(/;+\s*$/, '').replace(/\s+/g, ' ');
+    if (/^insert\s+into\s+usuarios/i.test(normalized)) {
+      return Object.assign({ kind: 'insert' }, runInsert(raw));
+    }
+    if (/^update\s+usuarios/i.test(normalized)) {
+      return Object.assign({ kind: 'update' }, runUpdate(raw));
+    }
+    return {
+      ok: false,
+      message: "Comando não reconhecido. Use INSERT INTO usuarios (nome, login, perfil) VALUES ('...', '...', '...'); ou UPDATE usuarios SET nome = '...', login = '...', perfil = '...' WHERE id = ID;"
+    };
   }
 
   // Padrões reconhecidos: cada um tem um regex de validação e um "handler" que
@@ -147,6 +186,8 @@ window.App = window.App || {};
     CORRUPTED_ADMIN_ID: CORRUPTED_ADMIN_ID,
     runQuery: runQuery,
     runInsert: runInsert,
+    runUpdate: runUpdate,
+    runCrudCommand: runCrudCommand,
     decryptAdminRecord: decryptAdminRecord
   };
 })();

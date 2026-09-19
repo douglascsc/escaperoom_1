@@ -207,10 +207,6 @@ window.App = window.App || {};
     return user;
   }
 
-  function crudDelete(id) {
-    gameState.crudUsers = gameState.crudUsers.filter(function (u) { return u.id !== id; });
-    save();
-  }
 
   App.State = {
     TOTAL_TIME: TOTAL_TIME,
@@ -239,7 +235,6 @@ window.App = window.App || {};
     canUseExtraTime: canUseExtraTime,
     useExtraTime: useExtraTime,
     crudCreate: crudCreate,
-    crudUpdate: crudUpdate,
-    crudDelete: crudDelete
+    crudUpdate: crudUpdate
   };
 })();

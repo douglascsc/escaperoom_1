@@ -22,16 +22,6 @@ window.App = window.App || {};
       .replace(/>/g, '&gt;');
   }
 
-  // Sala 05 (CRUD): só o registro corrompido do administrador (mesmo ID da
-  // Sala 04) pode ser editado/excluído — os demais usuários são só contexto,
-  // herdado da mesma tabela, e não fazem parte do quebra-cabeça.
-  function crudActionsMarkup(user) {
-    if (user.id !== App.DB.CORRUPTED_ADMIN_ID) {
-      return '<span class="crud-actions-none">—</span>';
-    }
-    return `<button type="button" class="btn btn-mini" data-action="edit" data-id="${user.id}">EDITAR</button>
-      <button type="button" class="btn btn-mini btn-mini-danger" data-action="delete" data-id="${user.id}">EXCLUIR</button>`;
-  }
 
   function solvedBannerMarkup(room) {
     const item = room.item;
@@ -529,25 +519,24 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
     label: 'SALA 05 — O USUÁRIO PERDIDO',
     title: '✏️ SALA 05 — O USUÁRIO PERDIDO',
     estimatedTime: '7–10 min',
-    concepts: ['Create via SQL INSERT', 'Read', 'Update', 'Delete', 'Formulários e localStorage'],
+    concepts: ['SQL INSERT', 'SQL UPDATE', 'Read', 'localStorage'],
     solvedText: 'Você restaurou o usuário administrador com os dados corretos: ADMIN / master / administrador.',
     fragment: '6',
     item: { id: 'cartao-acesso', nome: '🪪 Cartão de Acesso', icone: '🪪', descricao: 'Emitido automaticamente ao restaurar o administrador do sistema.' },
     // RESPOSTA: dados exatos do usuário administrador a ser recriado
     answer: { nome: 'admin', login: 'master', perfil: 'administrador' },
     hints: [
-      'O registro do administrador não sumiu — ele está corrompido na tabela, com o mesmo ID que você já viu na Sala 04. Corrija-o (UPDATE) ou exclua-o e recrie-o (DELETE + INSERT); qualquer um dos dois funciona.',
+      'O registro do administrador não sumiu — está corrompido na tabela, com o mesmo ID que você já viu na Sala 04. Corrija-o com um UPDATE ou substitua-o com um INSERT.',
       'Você já viu os dados corretos desse usuário na Sala 04, ao descriptografar o registro — releia o que apareceu lá.',
-      "Para recriar via SQL, a sintaxe é: INSERT INTO usuarios (nome, login, perfil) VALUES ('...', '...', '...');",
+      "Para corrigir o registro existente: UPDATE usuarios SET nome = '...', login = '...', perfil = '...' WHERE id = ...;",
       'O nome costuma aparecer em maiúsculas em contas administrativas de sistema, e o perfil precisa ser, claramente, "administrador".',
-      "Dados exatos: Nome = ADMIN · Login = master · Perfil = administrador."
+      "Dados exatos: Nome = ADMIN · Login = master · Perfil = administrador — aplique no ID do registro corrompido que você viu na tabela, ou insira um novo."
     ],
     render: function (state) {
       if (state.solvedPuzzles.includes('crud')) return renderSolvedView(roomCRUD);
       const rows = state.crudUsers.map(function (u) {
         return `<tr data-id="${u.id}">
           <td>${u.id}</td><td>${escapeHTML(u.nome)}</td><td>${escapeHTML(u.login)}</td><td>${escapeHTML(u.perfil)}</td>
-          <td class="crud-actions">${crudActionsMarkup(u)}</td>
         </tr>`;
       }).join('');
       return `
@@ -556,63 +545,36 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
         <h2 class="room-title">✏️ O Usuário Perdido</h2>
         <div class="room-narrative">
           <p>&gt; O registro do administrador não foi apagado — está corrompido, ainda na tabela.</p>
-          <p>&gt; Corrija-o ou substitua-o. Você decide como.</p>
+          <p>&gt; Corrija-o ou substitua-o com um comando SQL.</p>
         </div>
 
         ${state.solvedPuzzles.includes('db') ? '<button type="button" id="crud-review-db-btn" class="btn btn-ghost">← Voltar para Sala 04 — Banco de Dados</button>' : ''}
 
         <table class="crud-table">
-          <thead><tr><th>ID</th><th>NOME</th><th>LOGIN</th><th>PERFIL</th><th>AÇÕES</th></tr></thead>
+          <thead><tr><th>ID</th><th>NOME</th><th>LOGIN</th><th>PERFIL</th></tr></thead>
           <tbody id="crud-tbody">${rows}</tbody>
         </table>
 
         <div class="sql-console">
-          <p class="terminal-label">SQL INSERT — CRIAR NOVO USUÁRIO</p>
+          <p class="terminal-label">SQL UPDATE OU INSERT — ATUALIZAR OU INSERIR NOVO USUÁRIO</p>
           <form id="crud-insert-form" class="field-row" autocomplete="off">
-            <label class="sr-only" for="crud-insert-query">Comando INSERT</label>
+            <label class="sr-only" for="crud-insert-query">Comando SQL</label>
             <input id="crud-insert-query" name="query" type="text" placeholder="" spellcheck="false">
             <button type="submit" class="btn btn-primary">EXECUTAR</button>
           </form>
           <div id="crud-insert-result" class="db-result" role="status"></div>
         </div>
-
-        <form id="crud-form" class="crud-form hidden" autocomplete="off">
-          <input type="hidden" id="crud-edit-id" value="">
-          <label for="crud-nome">Nome</label>
-          <input id="crud-nome" name="nome" type="text" required>
-          <label for="crud-login">Login</label>
-          <input id="crud-login" name="login" type="text" required>
-          <label for="crud-perfil">Perfil</label>
-          <select id="crud-perfil" name="perfil">
-            <option value="usuário">usuário</option>
-            <option value="operador">operador</option>
-            <option value="administrador">administrador</option>
-          </select>
-          <div class="crud-form-actions">
-            <button type="submit" class="btn btn-primary">SALVAR</button>
-            <button type="button" id="crud-cancel-btn" class="btn btn-ghost">CANCELAR</button>
-          </div>
-        </form>
-        <p id="crud-feedback" class="feedback" role="status"></p>
       </div>`;
     },
     init: function (container) {
       const tbody = container.querySelector('#crud-tbody');
-      const form = container.querySelector('#crud-form');
       const reviewBtn = container.querySelector('#crud-review-db-btn');
-      const cancelBtn = container.querySelector('#crud-cancel-btn');
-      const feedback = container.querySelector('#crud-feedback');
-      const editIdField = container.querySelector('#crud-edit-id');
-      const nomeField = container.querySelector('#crud-nome');
-      const loginField = container.querySelector('#crud-login');
-      const perfilField = container.querySelector('#crud-perfil');
       const insertForm = container.querySelector('#crud-insert-form');
       const insertInput = container.querySelector('#crud-insert-query');
       const insertResult = container.querySelector('#crud-insert-result');
 
       function rowMarkup(user) {
-        return `<td>${user.id}</td><td>${escapeHTML(user.nome)}</td><td>${escapeHTML(user.login)}</td><td>${escapeHTML(user.perfil)}</td>
-          <td class="crud-actions">${crudActionsMarkup(user)}</td>`;
+        return `<td>${user.id}</td><td>${escapeHTML(user.nome)}</td><td>${escapeHTML(user.login)}</td><td>${escapeHTML(user.perfil)}</td>`;
       }
 
       function appendUserRow(user) {
@@ -627,20 +589,6 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
         if (tr) tr.innerHTML = rowMarkup(user);
       }
 
-      function openForm(user) {
-        form.classList.remove('hidden');
-        editIdField.value = user.id;
-        nomeField.value = user.nome;
-        loginField.value = user.login;
-        perfilField.value = user.perfil;
-        nomeField.focus();
-      }
-
-      function closeForm() {
-        form.classList.add('hidden');
-        form.reset();
-      }
-
       function checkAdminMatch(user) {
         const a = roomCRUD.answer;
         return user.nome.trim().toLowerCase() === a.nome &&
@@ -648,7 +596,6 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
           user.perfil.trim().toLowerCase() === a.perfil;
       }
 
-      cancelBtn.addEventListener('click', function () { App.Game.playSound('click'); closeForm(); });
       if (reviewBtn) {
         reviewBtn.addEventListener('click', function () {
           App.Game.playSound('click');
@@ -656,27 +603,10 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
         });
       }
 
-      tbody.addEventListener('click', function (e) {
-        const btn = e.target.closest('button');
-        if (!btn) return;
-        const id = Number(btn.dataset.id);
-        const user = App.State.get().crudUsers.find(function (u) { return u.id === id; });
-        if (!user) return;
-        if (btn.dataset.action === 'edit') {
-          App.Game.playSound('click');
-          openForm(user);
-        } else if (btn.dataset.action === 'delete') {
-          App.Game.playSound('click');
-          App.State.crudDelete(id);
-          const tr = tbody.querySelector('tr[data-id="' + id + '"]');
-          if (tr) tr.remove();
-        }
-      });
-
-      // CREATE — via comando SQL INSERT, não por campos abertos.
+      // CREATE (INSERT) ou UPDATE — os dois via comando SQL, sem botões/formulário.
       insertForm.addEventListener('submit', function (e) {
         e.preventDefault();
-        const res = App.DB.runInsert(insertInput.value);
+        const res = App.DB.runCrudCommand(insertInput.value);
         if (!res.ok) {
           App.Game.playSound('error');
           App.Game.registerMistake('crud');
@@ -684,38 +614,32 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
           insertResult.textContent = res.message;
           return;
         }
-        const saved = App.State.crudCreate(res.values);
+
+        let saved;
+        if (res.kind === 'insert') {
+          saved = App.State.crudCreate(res.values);
+          appendUserRow(saved);
+          insertResult.textContent = 'Registro inserido na tabela usuarios (id ' + saved.id + ').';
+        } else {
+          saved = App.State.crudUpdate(res.id, res.values);
+          if (!saved) {
+            App.Game.playSound('error');
+            App.Game.registerMistake('crud');
+            insertResult.className = 'db-result db-result-error';
+            insertResult.textContent = 'Nenhum usuário encontrado com id ' + res.id + '.';
+            return;
+          }
+          updateUserRow(saved);
+          insertResult.textContent = 'Registro id ' + res.id + ' atualizado na tabela usuarios.';
+        }
+
         App.Game.playSound('click');
         insertResult.className = 'db-result db-result-ok';
-        insertResult.textContent = 'Registro inserido na tabela usuarios (id ' + saved.id + ').';
-        appendUserRow(saved);
         insertInput.value = '';
 
         if (checkAdminMatch(saved)) {
           App.Game.playSound('success');
           App.Game.completeRoom('crud');
-        }
-      });
-
-      // UPDATE — ainda por formulário de campos, para editar um registro existente.
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        const payload = { nome: nomeField.value.trim(), login: loginField.value.trim(), perfil: perfilField.value };
-        if (!payload.nome || !payload.login) return;
-
-        const saved = App.State.crudUpdate(Number(editIdField.value), payload);
-        App.Game.playSound('click');
-        closeForm();
-        updateUserRow(saved);
-
-        if (checkAdminMatch(saved)) {
-          App.Game.playSound('success');
-          feedback.textContent = '✔ Sistema reconheceu o usuário administrador restaurado.';
-          feedback.className = 'feedback feedback-success';
-          App.Game.completeRoom('crud');
-        } else {
-          feedback.textContent = 'Usuário atualizado, mas o sistema ainda não reconhece um administrador válido.';
-          feedback.className = 'feedback feedback-error';
         }
       });
     }

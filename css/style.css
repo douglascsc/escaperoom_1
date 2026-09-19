@@ -78,9 +78,6 @@ input:focus-visible, select:focus-visible, button:focus-visible, [tabindex]:focu
 .btn-primary:hover { background: #6ba0ff; border-color: #6ba0ff; }
 .btn-ghost { background: transparent; }
 .btn-lg { padding: 0.9em 2.2em; font-size: 1.05rem; }
-.btn-mini { padding: 0.35em 0.7em; font-size: 0.8rem; border-radius: 6px; }
-.btn-mini-danger { border-color: #4a2530; color: #ffb4ae; }
-.btn-mini-danger:hover { background: #331b20; }
 
 /* ---------- Layout de telas ---------- */
 #app { min-height: 100vh; }
@@ -419,18 +416,6 @@ input:focus-visible, select:focus-visible, button:focus-visible, [tabindex]:focu
 .crud-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.88rem; }
 .crud-table th, .crud-table td { border-bottom: 1px solid var(--border-soft); padding: 0.6em 0.7em; text-align: left; }
 .crud-table th { color: var(--text-faint); font-family: var(--font-mono); font-weight: 600; font-size: 0.78rem; }
-.crud-actions { display: flex; gap: 0.4rem; }
-.crud-actions-none { color: var(--text-faint); }
-.crud-form {
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.2em;
-  margin: 1rem 0;
-  display: grid; gap: 0.4em; max-width: 380px;
-}
-.crud-form label { font-size: 0.78rem; color: var(--text-faint); font-family: var(--font-mono); margin-top: 0.3em; }
-.crud-form-actions { display: flex; gap: 0.6rem; margin-top: 0.8em; }
 
 /* ---------- Sala resolvida / itens / fragmentos ---------- */
 .solved-banner {
