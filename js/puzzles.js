@@ -400,7 +400,7 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
                 <thead><tr><th>nome</th><th>login</th><th>perfil</th></tr></thead>
                 <tbody><tr><td>${escapeHTML(admin.nome)}</td><td>${escapeHTML(admin.login)}</td><td>${escapeHTML(admin.perfil)}</td></tr></tbody>
               </table>
-              <p class="decrypt-reveal-note">⚠ Anote esses dados. O próximo painel de usuários parte deste mesmo registro corrompido — você poderá corrigi-lo diretamente (UPDATE) ou inserir um novo registro com esses dados (INSERT), mas não vai vê-lo descriptografado de novo.</p>
+              <p class="decrypt-reveal-note">⚠ Anote esses dados. O próximo painel de usuários parte deste mesmo registro corrompido — você poderá corrigi-lo diretamente (UPDATE), excluí-lo e recriá-lo (DELETE + INSERT), ou só inserir um novo registro com esses dados (INSERT), mas não vai vê-lo descriptografado de novo.</p>
             </div>`;
 
           const alreadySolved = App.State.isSolved('db');
@@ -518,14 +518,14 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
     label: 'SALA 05 — O USUÁRIO PERDIDO',
     title: '✏️ SALA 05 — O USUÁRIO PERDIDO',
     estimatedTime: '7–10 min',
-    concepts: ['SQL INSERT', 'SQL UPDATE', 'Read', 'localStorage'],
+    concepts: ['SQL INSERT', 'SQL UPDATE', 'SQL DELETE', 'Read', 'localStorage'],
     solvedText: 'Você restaurou o usuário administrador com os dados corretos: admin / master / administrador.',
     fragment: '6',
     item: { id: 'cartao-acesso', nome: '🪪 Cartão de Acesso', icone: '🪪', descricao: 'Emitido automaticamente ao restaurar o administrador do sistema.' },
     // RESPOSTA: dados exatos do usuário administrador a ser recriado
     answer: { nome: 'admin', login: 'master', perfil: 'administrador' },
     hints: [
-      'O registro do administrador não sumiu — está corrompido na tabela, com o mesmo ID que você já viu na Sala 04. Corrija-o com um UPDATE ou substitua-o com um INSERT.',
+      'O registro do administrador não sumiu — está corrompido na tabela, com o mesmo ID que você já viu na Sala 04. Corrija-o com um UPDATE, substitua-o com um INSERT (excluindo antes com DELETE ou não), à sua escolha.',
       'Você já viu os dados corretos desse usuário na Sala 04, ao descriptografar o registro — releia o que apareceu lá.',
       "Para corrigir o registro existente: UPDATE usuarios SET nome = '...', login = '...', perfil = '...' WHERE id = ...;",
       'O perfil precisa ser, claramente, "administrador" — não "usuário" nem "operador".',
@@ -556,7 +556,8 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
         </table>
 
         <div class="sql-console">
-          <p class="terminal-label">SQL UPDATE OU INSERT — ATUALIZAR OU INSERIR NOVO USUÁRIO</p>
+          <p class="terminal-label">SQL UPDATE, INSERT OU DELETE — ATUALIZAR, INSERIR OU EXCLUIR USUÁRIO</p>
+          <p class="room-tip">💭 O campo id é auto-increment — não inclua id no INSERT, ele é gerado automaticamente.</p>
           <form id="crud-insert-form" class="field-row" autocomplete="off">
             <label class="sr-only" for="crud-insert-query">Comando SQL</label>
             <input id="crud-insert-query" name="query" type="text" placeholder="" spellcheck="false">
@@ -589,6 +590,11 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
         if (tr) tr.innerHTML = rowMarkup(user);
       }
 
+      function removeUserRow(id) {
+        const tr = tbody.querySelector('tr[data-id="' + id + '"]');
+        if (tr) tr.remove();
+      }
+
       function checkAdminMatch(user) {
         const a = roomCRUD.answer;
         return user.nome.trim().toLowerCase() === a.nome &&
@@ -603,7 +609,9 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
         });
       }
 
-      // CREATE (INSERT) ou UPDATE — os dois via comando SQL, sem botões/formulário.
+      // CREATE (INSERT), UPDATE ou DELETE — todos via comando SQL real, sem
+      // botões/formulário. Qualquer um deles altera de verdade os dados do
+      // jogo (App.State.crudUsers), não é cosmético.
       insertForm.addEventListener('submit', function (e) {
         e.preventDefault();
         const res = App.DB.runCrudCommand(insertInput.value);
@@ -613,6 +621,23 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
           insertResult.className = 'db-result db-result-error';
           insertResult.textContent = res.message;
           return;
+        }
+
+        if (res.kind === 'delete') {
+          const removed = App.State.crudDelete(res.id);
+          if (!removed) {
+            App.Game.playSound('error');
+            App.Game.registerMistake('crud');
+            insertResult.className = 'db-result db-result-error';
+            insertResult.textContent = 'Nenhum usuário encontrado com id ' + res.id + '.';
+            return;
+          }
+          App.Game.playSound('click');
+          removeUserRow(res.id);
+          insertResult.className = 'db-result db-result-ok';
+          insertResult.textContent = 'Registro id ' + res.id + ' excluído da tabela usuarios.';
+          insertInput.value = '';
+          return; // excluir sozinho nunca resolve a sala — não há registro pra checar
         }
 
         let saved;

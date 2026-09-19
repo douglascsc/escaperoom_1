@@ -54,14 +54,23 @@ window.App = window.App || {};
 
   // Interpretador controlado para o INSERT da Sala 05 — reconhece apenas o
   // formato INSERT INTO usuarios (nome, login, perfil) VALUES (...), na
-  // mesma ordem de colunas. Não é um parser SQL genérico.
+  // mesma ordem de colunas. O id é auto-increment (ver crudCreate em
+  // js/state.js) e não pode ser informado no INSERT — se o jogador tentar,
+  // ganha um erro específico em vez do genérico. Não é um parser SQL genérico.
   const INSERT_RE = /^insert\s+into\s+usuarios\s*\(\s*nome\s*,\s*login\s*,\s*perfil\s*\)\s*values\s*\(\s*'([^']*)'\s*,\s*'([^']*)'\s*,\s*'([^']*)'\s*\)$/i;
+  const INSERT_WITH_ID_RE = /^insert\s+into\s+usuarios\s*\(\s*id\s*,/i;
 
   function runInsert(raw) {
     if (!raw || !raw.trim()) {
       return { ok: false, message: 'Digite um comando INSERT antes de executar.' };
     }
     const normalized = raw.trim().replace(/;+\s*$/, '').replace(/\s+/g, ' ').replace(/"/g, "'");
+    if (INSERT_WITH_ID_RE.test(normalized)) {
+      return {
+        ok: false,
+        message: "O campo id é gerado automaticamente (auto-increment) — não inclua id no INSERT. Use: INSERT INTO usuarios (nome, login, perfil) VALUES ('NOME', 'LOGIN', 'PERFIL');"
+      };
+    }
     const m = normalized.match(INSERT_RE);
     if (!m) {
       return {
@@ -92,8 +101,28 @@ window.App = window.App || {};
     return { ok: true, id: Number(m[4]), values: { nome: m[1], login: m[2], perfil: m[3] } };
   }
 
+  // Interpretador controlado para o DELETE da Sala 05 — reconhece apenas o
+  // formato DELETE FROM usuarios WHERE id = N. Não é um parser SQL genérico.
+  const DELETE_RE = /^delete\s+from\s+usuarios\s+where\s+id\s*=\s*(\d+)$/i;
+
+  function runDelete(raw) {
+    if (!raw || !raw.trim()) {
+      return { ok: false, message: 'Digite um comando DELETE antes de executar.' };
+    }
+    const normalized = raw.trim().replace(/;+\s*$/, '').replace(/\s+/g, ' ');
+    const m = normalized.match(DELETE_RE);
+    if (!m) {
+      return {
+        ok: false,
+        message: 'Comando não reconhecido. Use o formato: DELETE FROM usuarios WHERE id = ID;'
+      };
+    }
+    return { ok: true, id: Number(m[1]) };
+  }
+
   // Ponto único de entrada para o console SQL da Sala 05: reconhece um
-  // comando INSERT ou UPDATE na tabela usuarios e delega para o parser certo.
+  // comando INSERT, UPDATE ou DELETE na tabela usuarios e delega para o
+  // parser certo.
   function runCrudCommand(raw) {
     if (!raw || !raw.trim()) {
       return { ok: false, message: 'Digite um comando SQL antes de executar.' };
@@ -105,9 +134,12 @@ window.App = window.App || {};
     if (/^update\s+usuarios/i.test(normalized)) {
       return Object.assign({ kind: 'update' }, runUpdate(raw));
     }
+    if (/^delete\s+from\s+usuarios/i.test(normalized)) {
+      return Object.assign({ kind: 'delete' }, runDelete(raw));
+    }
     return {
       ok: false,
-      message: "Comando não reconhecido. Use INSERT INTO usuarios (nome, login, perfil) VALUES ('...', '...', '...'); ou UPDATE usuarios SET nome = '...', login = '...', perfil = '...' WHERE id = ID;"
+      message: "Comando não reconhecido. Use INSERT INTO usuarios (nome, login, perfil) VALUES ('...', '...', '...'); UPDATE usuarios SET nome = '...', login = '...', perfil = '...' WHERE id = ID; ou DELETE FROM usuarios WHERE id = ID;"
     };
   }
 
@@ -188,6 +220,7 @@ window.App = window.App || {};
     runQuery: runQuery,
     runInsert: runInsert,
     runUpdate: runUpdate,
+    runDelete: runDelete,
     runCrudCommand: runCrudCommand,
     decryptAdminRecord: decryptAdminRecord
   };

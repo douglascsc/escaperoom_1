@@ -196,6 +196,13 @@ window.App = window.App || {};
     return user;
   }
 
+  function crudDelete(id) {
+    const before = gameState.crudUsers.length;
+    gameState.crudUsers = gameState.crudUsers.filter(function (u) { return u.id !== id; });
+    save();
+    return gameState.crudUsers.length < before;
+  }
+
 
   App.State = {
     TOTAL_TIME: TOTAL_TIME,
@@ -223,6 +230,7 @@ window.App = window.App || {};
     canUseExtraTime: canUseExtraTime,
     useExtraTime: useExtraTime,
     crudCreate: crudCreate,
-    crudUpdate: crudUpdate
+    crudUpdate: crudUpdate,
+    crudDelete: crudDelete
   };
 })();
