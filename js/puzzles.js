@@ -207,7 +207,7 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
           <p class="css-line">Próxima verificação automática em 12 minutos.</p>
         </div>
 
-        <p class="room-tip">💭 Experimente selecionar todo o conteúdo desta tela (Ctrl+A) — ou clique com o botão direito e inspecione os elementos.</p>
+        <p class="room-tip">💭 Nem tudo que existe nesta tela está sendo mostrado a olho nu. Talvez valha a pena tentar "pegar" todo o conteúdo da página de uma vez.</p>
 
         <form id="css-form" class="field-row" autocomplete="off">
           <label class="sr-only" for="css-codigo">Código secreto</label>
@@ -363,7 +363,7 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
           <p class="terminal-label">SQL COMMAND</p>
           <form id="db-form" class="field-row" autocomplete="off">
             <label class="sr-only" for="db-query">Consulta SQL</label>
-            <input id="db-query" name="query" type="text" placeholder="SELECT * FROM tabela WHERE campo = 'valor';" spellcheck="false">
+            <input id="db-query" name="query" type="text" placeholder="" spellcheck="false">
             <button type="submit" class="btn btn-primary">EXECUTAR</button>
           </form>
           <div id="db-result" class="db-result" role="status"></div>
@@ -415,6 +415,42 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
           result.textContent = res.message;
         }
       });
+    },
+    // Usada quando outra sala (ex.: a 05) permite voltar e reler esta sala já
+    // resolvida. É somente consulta: não chama nada de App.State/App.Game
+    // que altere o progresso, só navega pelas tabelas já existentes.
+    reviewRender: function () {
+      return `
+        <div class="db-layout">
+          <div class="db-tables">
+            <p class="db-tables-title">TABELAS</p>
+            <button type="button" class="table-btn" data-table="usuarios">📁 usuarios</button>
+            <button type="button" class="table-btn" data-table="produtos">📁 produtos</button>
+            <button type="button" class="table-btn" data-table="logs">📁 logs</button>
+          </div>
+          <div id="review-db-table-view" class="db-table-view" aria-live="polite">
+            <p class="db-placeholder">Selecione uma tabela para visualizar os registros.</p>
+          </div>
+        </div>`;
+    },
+    reviewInit: function (container) {
+      const tableView = container.querySelector('#review-db-table-view');
+      function renderTable(name, rows) {
+        if (!rows.length) { tableView.innerHTML = '<p class="db-placeholder">Tabela vazia.</p>'; return; }
+        const cols = Object.keys(rows[0]);
+        let html = `<table class="db-table"><thead><tr>${cols.map(function (c) { return '<th>' + escapeHTML(c) + '</th>'; }).join('')}</tr></thead><tbody>`;
+        rows.forEach(function (row) {
+          html += '<tr>' + cols.map(function (c) { return '<td>' + escapeHTML(row[c]) + '</td>'; }).join('') + '</tr>';
+        });
+        html += '</tbody></table>';
+        tableView.innerHTML = html;
+      }
+      container.querySelectorAll('.table-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          App.Game.playSound('click');
+          renderTable(btn.dataset.table, App.DB.tables[btn.dataset.table]);
+        });
+      });
     }
   };
 
@@ -459,6 +495,8 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
 
         <p class="room-tip">💭 Reveja o que os registros de log da Sala 04 diziam sobre como recriar essa conta.</p>
 
+        ${state.solvedPuzzles.includes('db') ? '<button type="button" id="crud-review-db-btn" class="btn btn-ghost">🔎 Rever Sala 04 — Banco de Dados</button>' : ''}
+
         <table class="crud-table">
           <thead><tr><th>ID</th><th>NOME</th><th>LOGIN</th><th>PERFIL</th><th>AÇÕES</th></tr></thead>
           <tbody id="crud-tbody">${rows}</tbody>
@@ -488,6 +526,7 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
     init: function (container) {
       const form = container.querySelector('#crud-form');
       const newBtn = container.querySelector('#crud-new-btn');
+      const reviewBtn = container.querySelector('#crud-review-db-btn');
       const cancelBtn = container.querySelector('#crud-cancel-btn');
       const feedback = container.querySelector('#crud-feedback');
       const editIdField = container.querySelector('#crud-edit-id');
@@ -523,6 +562,12 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
 
       newBtn.addEventListener('click', function () { App.Game.playSound('click'); openForm(null); });
       cancelBtn.addEventListener('click', function () { App.Game.playSound('click'); closeForm(); });
+      if (reviewBtn) {
+        reviewBtn.addEventListener('click', function () {
+          App.Game.playSound('click');
+          App.Game.openRoomReview('db');
+        });
+      }
 
       container.querySelector('#crud-tbody').addEventListener('click', function (e) {
         const btn = e.target.closest('button');

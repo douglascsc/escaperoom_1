@@ -22,6 +22,7 @@ window.App = window.App || {};
       'btn-sound', 'btn-restart', 'progress-map', 'room-content',
       'panel-inventory', 'inventory-list', 'panel-hint', 'hint-body',
       'teacher-modal', 'teacher-body', 'recap-modal', 'recap-body',
+      'room-review-modal', 'room-review-body', 'room-review-title',
       'victory-rank', 'victory-stats', 'defeat-stats',
       'btn-replay', 'btn-recap', 'btn-retry', 'toast-region'
     ].forEach(function (id) { el[id.replace(/-([a-z])/g, function (_, c) { return c.toUpperCase(); })] = q(id); });
@@ -295,6 +296,17 @@ window.App = window.App || {};
 
   function closeModal(modal) { modal.classList.add('hidden'); }
 
+  function openRoomReview(roomId) {
+    const room = App.Puzzles.rooms[roomId];
+    if (!room || !room.reviewRender) return;
+    el.roomReviewTitle.textContent = '🔎 Revisão — ' + room.label;
+    el.roomReviewBody.innerHTML =
+      '<p class="teacher-intro">Esta sala já foi concluída. Você pode consultar os dados de novo à vontade — nada aqui muda seu progresso.</p>' +
+      room.reviewRender();
+    if (room.reviewInit) room.reviewInit(el.roomReviewBody);
+    el.roomReviewModal.classList.remove('hidden');
+  }
+
   // ---------------------------------------------------------------------
   // Cronômetro
   // ---------------------------------------------------------------------
@@ -430,6 +442,7 @@ window.App = window.App || {};
         closePanel(el.panelHint);
         closeModal(el.teacherModal);
         closeModal(el.recapModal);
+        closeModal(el.roomReviewModal);
       }
     });
   }
@@ -455,6 +468,7 @@ window.App = window.App || {};
     registerMistake: registerMistake,
     rerenderRoom: rerenderRoom,
     finishGame: finishGame,
-    toast: toast
+    toast: toast,
+    openRoomReview: openRoomReview
   };
 })();
