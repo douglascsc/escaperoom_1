@@ -10,14 +10,14 @@ window.App = window.App || {};
   const TOTAL_TIME = 45 * 60; // 45 minutos, em segundos
 
   // Ordem oficial das salas. "intro" e "victory"/"defeat" não contam como salas jogáveis.
-  const ROOM_ORDER = ['html', 'css', 'js', 'db', 'crud', 'final'];
+  const ROOM_ORDER = ['css', 'html', 'js', 'db', 'crud', 'final'];
 
   function defaultState() {
     return {
       started: false,
       finished: false,
       victory: false,
-      currentRoom: 'html',
+      currentRoom: 'css',
       timeRemaining: TOTAL_TIME,
       lastSavedAt: Date.now(),
       inventory: [],           // { id, nome, icone, descricao }

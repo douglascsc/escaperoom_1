@@ -253,7 +253,7 @@ window.App = window.App || {};
       return 'Nome: ADMIN · Login: master · Perfil: administrador';
     }
     if (room.id === 'final') {
-      return 'Concatenação dos fragmentos revelados em cada sala, na ordem HTML → CSS → JS → SQL → CRUD (ex.: "73946"). É calculado dinamicamente, não é fixo caso os fragmentos sejam alterados.';
+      return 'Concatenação dos fragmentos revelados em cada sala, na ordem CSS → HTML → JS → SQL → CRUD (ex.: "37946"). É calculado dinamicamente a partir de App.State.ROOM_ORDER, não é fixo caso a ordem ou os fragmentos sejam alterados.';
     }
     return room.answer;
   }
@@ -272,7 +272,7 @@ window.App = window.App || {};
 
   function openTeacherModal() {
     el.teacherBody.innerHTML =
-      '<p class="teacher-intro">Sequência esperada: HTML → CSS → JavaScript → Banco de Dados/SQL → CRUD → Sala de Controle. Duração estimada total: ~45 minutos.</p>' +
+      '<p class="teacher-intro">Sequência esperada: CSS → HTML → JavaScript → Banco de Dados/SQL → CRUD → Sala de Controle. Duração estimada total: ~45 minutos.</p>' +
       buildInfoSections(true);
     el.teacherModal.classList.remove('hidden');
   }

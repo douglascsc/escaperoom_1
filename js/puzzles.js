@@ -49,12 +49,12 @@ window.App = window.App || {};
   }
 
   // ---------------------------------------------------------------------
-  // SALA 01 — HTML
+  // SALA 02 — HTML (2ª sala jogada — ver ROOM_ORDER em state.js)
   // ---------------------------------------------------------------------
   const roomHTML = {
     id: 'html',
-    label: 'SALA 01 — O CÓDIGO ESCONDIDO',
-    title: '🔐 SALA 01 — O CÓDIGO ESCONDIDO',
+    label: 'SALA 02 — O CÓDIGO ESCONDIDO',
+    title: '🔐 SALA 02 — O CÓDIGO ESCONDIDO',
     estimatedTime: '5–7 min',
     concepts: ['Estrutura HTML', 'Comentários (<!-- -->)', 'Inspeção de elementos (DevTools)'],
     solvedText: 'Você encontrou o comentário escondido no relatório do sistema e destravou o terminal.',
@@ -71,7 +71,7 @@ window.App = window.App || {};
       if (state.solvedPuzzles.includes('html')) return renderSolvedView(roomHTML);
       return `
       <div class="room">
-        <p class="room-kicker">SALA 01</p>
+        <p class="room-kicker">SALA 02</p>
         <h2 class="room-title">🔐 O Código Escondido</h2>
         <div class="room-narrative">
           <p>&gt; O terminal principal está bloqueado.</p>
@@ -87,7 +87,7 @@ window.App = window.App || {};
           <button type="button" class="object-btn" data-object="terminal">💻<span>Terminal</span></button>
         </div>
 
-        <p class="room-tip">💭 Um relatório de sistema pode conter mais informação do que a tela mostra. Ferramentas de desenvolvedor do navegador (botão direito → Inspecionar) ajudam a enxergar o que está por trás da interface.</p>
+        <p class="room-tip">💭 Um relatório de sistema pode conter mais informação do que a tela mostra. Ferramentas de desenvolvedor do navegador ajudam a enxergar o que está por trás da interface.</p>
 
         <div id="html-detail" class="detail-panel hidden" aria-live="polite"></div>
 
@@ -168,12 +168,12 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
   };
 
   // ---------------------------------------------------------------------
-  // SALA 02 — CSS
+  // SALA 01 — CSS (1ª sala jogada — ver ROOM_ORDER em state.js)
   // ---------------------------------------------------------------------
   const roomCSS = {
     id: 'css',
-    label: 'SALA 02 — A INTERFACE INVISÍVEL',
-    title: '🎨 SALA 02 — A INTERFACE INVISÍVEL',
+    label: 'SALA 01 — A INTERFACE INVISÍVEL',
+    title: '🎨 SALA 01 — A INTERFACE INVISÍVEL',
     estimatedTime: '5–7 min',
     concepts: ['Propriedades color/background', 'display vs. visibility', 'Classes e IDs', 'Inspeção de estilos computados'],
     solvedText: 'Você encontrou o texto camuflado no painel de status: a cor do texto era igual à do fundo.',
@@ -190,7 +190,7 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
       if (state.solvedPuzzles.includes('css')) return renderSolvedView(roomCSS);
       return `
       <div class="room">
-        <p class="room-kicker">SALA 02</p>
+        <p class="room-kicker">SALA 01</p>
         <h2 class="room-title">🎨 A Interface Invisível</h2>
         <div class="room-narrative">
           <p>&gt; O sistema abriu uma nova sala.</p>
@@ -632,14 +632,14 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
     label: 'SALA DE CONTROLE',
     title: '🔓 SALA DE CONTROLE',
     estimatedTime: '3–5 min',
-    concepts: ['Síntese: combinar pistas de HTML, CSS, JavaScript, Banco de Dados e CRUD'],
+    concepts: ['Síntese: combinar pistas de CSS, HTML, JavaScript, Banco de Dados e CRUD'],
     solvedText: '',
     fragment: null,
     item: null,
     hints: [
       'Você não precisa adivinhar. As respostas já estão com você — reveja seu inventário (🎒).',
       'Cada sala revelou um fragmento numérico ao ser concluída.',
-      'Combine os fragmentos na ordem em que foram descobertos: HTML, CSS, JavaScript, Banco de Dados, CRUD.'
+      'Combine os fragmentos na ordem em que foram descobertos: CSS, HTML, JavaScript, Banco de Dados, CRUD.'
     ],
     computeAnswer: function (state) {
       return App.State.ROOM_ORDER.filter(function (r) { return r !== 'final'; })
