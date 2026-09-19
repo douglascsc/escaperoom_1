@@ -87,6 +87,8 @@ window.App = window.App || {};
           <button type="button" class="object-btn" data-object="terminal">💻<span>Terminal</span></button>
         </div>
 
+        <p class="room-tip">💭 Um relatório de sistema pode conter mais informação do que a tela mostra. Ferramentas de desenvolvedor do navegador (botão direito → Inspecionar) ajudam a enxergar o que está por trás da interface.</p>
+
         <div id="html-detail" class="detail-panel hidden" aria-live="polite"></div>
 
         <div id="html-terminal" class="terminal-panel hidden">
@@ -205,6 +207,8 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
           <p class="css-line">Próxima verificação automática em 12 minutos.</p>
         </div>
 
+        <p class="room-tip">💭 Experimente selecionar todo o conteúdo desta tela (Ctrl+A) — ou clique com o botão direito e inspecione os elementos.</p>
+
         <form id="css-form" class="field-row" autocomplete="off">
           <label class="sr-only" for="css-codigo">Código secreto</label>
           <input id="css-codigo" name="codigo" type="text" placeholder="código" aria-label="Código secreto">
@@ -241,10 +245,10 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
   // ---------------------------------------------------------------------
   // SALA 03 — JAVASCRIPT
   // ---------------------------------------------------------------------
-  // RESPOSTA: usuário e senha do sistema de autenticação legado.
+  // RESPOSTA: usuário e senha do sistema de autenticação legado (convenção do usuário padrão do MySQL).
   function verificarAcessoSistema(usuario, senha) {
     const USUARIO_ESPERADO = 'root';
-    const SENHA_ESPERADA = '1847';
+    const SENHA_ESPERADA = '';
     return usuario.trim().toLowerCase() === USUARIO_ESPERADO && senha.trim() === SENHA_ESPERADA;
   }
 
@@ -253,14 +257,15 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
     label: 'SALA 03 — O MECANISMO DE SEGURANÇA',
     title: '⚙️ SALA 03 — O MECANISMO DE SEGURANÇA',
     estimatedTime: '7–10 min',
-    concepts: ['Variáveis e comparação', 'Condicionais (if)', 'Funções', 'Console do navegador', 'Leitura de código-fonte JS'],
-    solvedText: 'Você encontrou o usuário no console e a senha lendo o código-fonte de puzzles.js.',
+    concepts: ['Variáveis e comparação', 'Condicionais (if)', 'Funções', 'Console do navegador', 'Credenciais padrão (boas práticas de segurança)'],
+    solvedText: 'Você percebeu que o painel seguia a mesma convenção do usuário padrão do MySQL: root, sem senha.',
     fragment: '9',
     item: { id: 'pendrive', nome: '💾 Pendrive', icone: '💾', descricao: 'Encontrado conectado ao terminal. Contém um fragmento do protocolo final.' },
+    answer: 'root (senha em branco)',
     hints: [
-      'Abra o console do navegador (F12 → aba "Console"). O sistema pode ter deixado alguma mensagem de depuração ao carregar esta sala.',
-      'A verificação de usuário e senha está definida em algum arquivo JavaScript do próprio jogo. Você pode abrir os arquivos-fonte pela aba "Fontes/Sources" das ferramentas de desenvolvedor, ou acessar js/puzzles.js diretamente.',
-      'Procure, em js/puzzles.js, pela função verificarAcessoSistema. Ela compara o usuário e a senha digitados com dois valores fixos no código.'
+      'Sistemas de administração antigos, mal configurados, costumam usar convenções conhecidas de outros sistemas — releia o log de inicialização exibido na tela.',
+      'Pense no usuário padrão mais famoso de uma instalação recém-feita de um banco de dados MySQL.',
+      'Usuário: root — Senha: deixe o campo em branco e clique em ENTRAR.'
     ],
     render: function (state) {
       if (state.solvedPuzzles.includes('js')) return renderSolvedView(roomJS);
@@ -275,6 +280,8 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
 
         <pre class="terminal-log">[BOOT] auth.module carregado...
 [BOOT] verificarAcessoSistema() pronta.
+[INFO] Este painel de autenticação legado segue a mesma convenção
+       do usuário padrão do MySQL.
 [INFO] painel de autenticação aguardando entrada.</pre>
 
         <form id="js-form" class="auth-form" autocomplete="off">
@@ -289,7 +296,7 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
       </div>`;
     },
     init: function (container) {
-      console.info('%c[DEBUG] Autenticação legada ativa. Usuário padrão esperado: root', 'color:#2ee6a6');
+      console.info('%c[DEBUG] Autenticação legada ativa — mesma convenção do usuário padrão do MySQL.', 'color:#2ee6a6');
       const form = container.querySelector('#js-form');
       const user = container.querySelector('#js-usuario');
       const pass = container.querySelector('#js-senha');
@@ -356,7 +363,7 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
           <p class="terminal-label">SQL COMMAND</p>
           <form id="db-form" class="field-row" autocomplete="off">
             <label class="sr-only" for="db-query">Consulta SQL</label>
-            <input id="db-query" name="query" type="text" placeholder="SELECT * FROM usuarios WHERE perfil = 'admin';" spellcheck="false">
+            <input id="db-query" name="query" type="text" placeholder="SELECT * FROM tabela WHERE campo = 'valor';" spellcheck="false">
             <button type="submit" class="btn btn-primary">EXECUTAR</button>
           </form>
           <div id="db-result" class="db-result" role="status"></div>
@@ -449,6 +456,8 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
           <p>&gt; O registro necessário para abrir a porta foi apagado.</p>
           <p>&gt; Você precisa restaurá-lo.</p>
         </div>
+
+        <p class="room-tip">💭 Reveja o que os registros de log da Sala 04 diziam sobre como recriar essa conta.</p>
 
         <table class="crud-table">
           <thead><tr><th>ID</th><th>NOME</th><th>LOGIN</th><th>PERFIL</th><th>AÇÕES</th></tr></thead>

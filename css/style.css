@@ -234,6 +234,12 @@ input:focus-visible, select:focus-visible, button:focus-visible, [tabindex]:focu
   font-size: 0.92rem;
 }
 .room-narrative p:last-child { margin-bottom: 0; }
+.room-tip {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-style: italic;
+  margin: -0.4em 0 1.2em;
+}
 
 /* ---------- Objetos clicáveis (Sala HTML) ---------- */
 .objects-grid {

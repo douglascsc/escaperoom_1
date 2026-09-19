@@ -112,7 +112,7 @@ As respostas ficam sempre marcadas com o comentário `// RESPOSTA:` em `js/puzzl
 |---|---|---|
 | 01 — HTML | `roomHTML.answer` (string) | Troque o valor e o número dentro do comentário HTML em `contents.pasta`, dentro de `roomHTML.init` |
 | 02 — CSS | `roomCSS.answer` (string) | Troque o valor e o texto do parágrafo `#css-secret` em `roomCSS.render` |
-| 03 — JavaScript | função `verificarAcessoSistema` (usuário/senha) | Troque `USUARIO_ESPERADO` e `SENHA_ESPERADA` |
+| 03 — JavaScript | função `verificarAcessoSistema` (usuário/senha) — hoje `root` / senha em branco | Troque `USUARIO_ESPERADO` e `SENHA_ESPERADA`, e ajuste a linha correspondente no `.terminal-log` de `roomJS.render` |
 | 04 — SQL | `js/database.js`, array `patterns` | Ajuste os `regex` de cada padrão reconhecido |
 | 05 — CRUD | `roomCRUD.answer` (nome/login/perfil) | Troque os três valores esperados |
 | Final | calculado a partir de `fragment` de cada sala | Troque o campo `fragment` de cada sala — o código final é sempre a concatenação, na ordem HTML → CSS → JS → SQL → CRUD, então não precisa recalcular nada manualmente |
@@ -145,9 +145,9 @@ A tela mostra, para cada sala:
 
 - **Sala 01 (HTML)**: senha `7392`, encontrada em um comentário HTML (`<!-- senha temporária: 7392 -->`) dentro do arquivo "aberto" ao clicar na 📁 pasta. Há um comentário-isca na 🗑️ lixeira (`1111`) e um número-isca no 📄 documento (`0000`/`1234`).
 - **Sala 02 (CSS)**: código `4816`, escondido por uma classe CSS cujo `color` é igual ao `background` (só aparece selecionando o texto ou inspecionando o elemento). Há um item isca com `display: none` mostrando o código falso `0000`.
-- **Sala 03 (JavaScript)**: usuário `root` (revelado por um `console.info` ao carregar a sala) e senha `1847` (definida na função `verificarAcessoSistema`, em `js/puzzles.js`, legível pelas ferramentas de desenvolvedor).
-- **Sala 04 (SQL)**: consulta esperada `SELECT * FROM usuarios WHERE perfil = 'admin';`. A tabela `logs` (`SELECT * FROM logs;`) explica o que aconteceu e revela que o login correto do administrador é `master` — informação necessária na Sala 05.
-- **Sala 05 (CRUD)**: recriar o usuário com **Nome: ADMIN · Login: master · Perfil: administrador**.
+- **Sala 03 (JavaScript)**: usuário `root` e senha em branco — a mesma convenção do usuário padrão de uma instalação recém-feita do MySQL. Essa dica é dada diretamente no log de boot exibido na sala (e reforçada por um `console.info`); a validação está na função `verificarAcessoSistema`, em `js/puzzles.js`, legível pelas ferramentas de desenvolvedor.
+- **Sala 04 (SQL)**: consulta esperada `SELECT * FROM usuarios WHERE perfil = 'admin';`. A tabela `logs` (`SELECT * FROM logs;`) explica o que aconteceu e revela nome (`ADMIN`), login (`master`) e perfil (`administrador`) corretos para a Sala 05.
+- **Sala 05 (CRUD)**: recriar o usuário com **Nome: ADMIN · Login: master · Perfil: administrador** — todos os três valores vêm do log lido na Sala 04, não é necessário adivinhar.
 - **Sala final**: o código é a concatenação dos fragmentos revelados ao concluir cada sala anterior, na ordem HTML → CSS → JS → SQL → CRUD (com os valores padrão acima, o código é `73946`).
 
 ## Acessibilidade
