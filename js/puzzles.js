@@ -79,9 +79,9 @@ window.App = window.App || {};
         <p class="room-kicker">SALA 02</p>
         <h2 class="room-title">🔐 O Código Escondido</h2>
         <div class="room-narrative">
-          <p>&gt; O terminal principal está bloqueado.</p>
-          <p>&gt; Existe uma senha escondida no sistema.</p>
-          <p>&gt; O problema é que ela não aparece na interface.</p>
+          <p>&gt; O bloqueio avança: agora é o terminal principal que está travado.</p>
+          <p>&gt; A mesma pessoa do painel anterior esteve aqui — e escondeu uma senha antes de perder o acesso.</p>
+          <p>&gt; O problema é que essa senha não aparece em lugar nenhum da interface.</p>
         </div>
 
         <div class="objects-grid" role="group" aria-label="Objetos da sala">
@@ -281,8 +281,9 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
         <p class="room-kicker">SALA 03</p>
         <h2 class="room-title">⚙️ O Mecanismo de Segurança</h2>
         <div class="room-narrative">
-          <p>&gt; Um painel de autenticação legado ainda está ativo neste setor.</p>
-          <p>&gt; Ele não foi feito para ser fácil de usar — mas alguém deixou pistas.</p>
+          <p>&gt; Nem tudo neste laboratório foi trocado quando o sistema foi modernizado.</p>
+          <p>&gt; Um painel de autenticação legado, esquecido, ainda está ativo — ninguém nunca configurou uma senha para ele.</p>
+          <p>&gt; É a brecha que você precisa usar agora.</p>
         </div>
 
         <pre class="terminal-log">[BOOT] auth.module carregado...
@@ -352,8 +353,9 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
         <p class="room-kicker">SALA 04</p>
         <h2 class="room-title">🗄️ O Banco de Dados</h2>
         <div class="room-narrative">
-          <p>&gt; O administrador do sistema desapareceu.</p>
-          <p>&gt; Existe um registro importante escondido entre os dados.</p>
+          <p>&gt; Agora você sabe quem é essa pessoa: o administrador do sistema.</p>
+          <p>&gt; O registro dela nunca foi apagado — só ficou escondido entre milhares de outros, corrompido pela queda do sistema.</p>
+          <p>&gt; Encontre-a nos dados.</p>
         </div>
 
         <div class="db-layout">
@@ -543,8 +545,9 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
         <p class="room-kicker">SALA 05</p>
         <h2 class="room-title">✏️ O Usuário Perdido</h2>
         <div class="room-narrative">
-          <p>&gt; O registro do administrador não foi apagado — está corrompido, ainda na tabela.</p>
-          <p>&gt; Corrija-o ou substitua-o com um comando SQL.</p>
+          <p>&gt; Você já descriptografou os dados reais. Agora é preciso devolvê-los ao sistema.</p>
+          <p>&gt; Restaure o administrador — sem ele, a porta principal nunca vai reconhecer sua autoridade.</p>
+          <p>&gt; Corrija o registro corrompido ou insira um novo, com um comando SQL.</p>
         </div>
 
         ${state.solvedPuzzles.includes('db') ? '<button type="button" id="crud-review-db-btn" class="btn btn-ghost">← Voltar para Sala 04 — Banco de Dados</button>' : ''}
@@ -700,8 +703,9 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
         <p class="room-kicker">SALA DE CONTROLE</p>
         <h2 class="room-title">🔓 Protocolo de Desbloqueio</h2>
         <div class="room-narrative">
-          <p>&gt; Todos os subsistemas foram recuperados.</p>
-          <p>&gt; Falta apenas um comando: o código final que combina tudo o que você já descobriu.</p>
+          <p>&gt; Todos os subsistemas foram recuperados. O administrador está de volta ao sistema.</p>
+          <p>&gt; Só falta um comando: o código final, a combinação de tudo o que você já descobriu.</p>
+          <p>&gt; A porta principal está esperando.</p>
         </div>
         <form id="final-form" class="terminal-panel" autocomplete="off">
           <p class="terminal-label">PROTOCOLO DE DESBLOQUEIO</p>
