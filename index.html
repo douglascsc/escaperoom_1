@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operação: Servidor 404</title>
+<meta name="description" content="Escape Room digital educativo sobre HTML, CSS, JavaScript, Banco de Dados, SQL e CRUD.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%90%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ================= TELA INICIAL ================= -->
+  <section id="screen-intro" class="screen screen-intro">
+    <div class="intro-scan"></div>
+    <div class="intro-content">
+      <p class="intro-kicker">PROTOCOLO DE EMERGÊNCIA ATIVO</p>
+      <h1 class="intro-title">OPERAÇÃO: SERVIDOR 404</h1>
+      <div class="intro-lines">
+        <p>&gt; O sistema central foi comprometido.</p>
+        <p>&gt; Todas as portas foram bloqueadas.</p>
+        <p>&gt; Você tem <strong>45 minutos</strong> para recuperar o acesso.</p>
+      </div>
+      <button id="btn-start" class="btn btn-primary btn-lg">INICIAR MISSÃO</button>
+      <button id="btn-continue" class="btn btn-ghost hidden">CONTINUAR MISSÃO EM ANDAMENTO</button>
+      <p class="intro-footnote">Laboratório de Informática — Setor 4 · Acesso restrito</p>
+    </div>
+  </section>
+
+  <!-- ================= TELA DE JOGO ================= -->
+  <section id="screen-game" class="screen screen-game hidden">
+    <header class="game-header">
+      <div class="hud-left">
+        <span class="game-title">OPERAÇÃO: SERVIDOR 404</span>
+        <span id="room-label" class="room-label">SALA 01 — O CÓDIGO ESCONDIDO</span>
+      </div>
+      <div class="hud-center">
+        <div id="timer" class="timer" role="timer" aria-label="Tempo restante da missão">45:00</div>
+      </div>
+      <div class="hud-right">
+        <button id="btn-inventory" type="button" class="hud-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel-inventory">
+          🎒 <span class="hud-btn-text">Inventário</span><span id="inventory-count" class="badge hidden">0</span>
+        </button>
+        <button id="btn-hint" type="button" class="hud-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel-hint">
+          💡 <span class="hud-btn-text">Pista</span>
+        </button>
+        <button id="btn-sound" type="button" class="hud-btn" aria-pressed="true">
+          🔊 <span class="hud-btn-text">Som: ON</span>
+        </button>
+        <button id="btn-restart" type="button" class="hud-btn hud-btn-danger" aria-label="Reiniciar missão">
+          ⟲ <span class="hud-btn-text">Reiniciar</span>
+        </button>
+      </div>
+    </header>
+
+    <nav id="progress-map" class="progress-map" aria-label="Progresso da missão"></nav>
+
+    <main id="room-content" class="room-content" aria-live="polite" tabindex="-1"></main>
+  </section>
+
+  <!-- ================= TELA DE VITÓRIA ================= -->
+  <section id="screen-victory" class="screen hidden">
+    <div class="result-card result-victory">
+      <p class="result-kicker">🎉 ESCAPE COMPLETO</p>
+      <h1 class="result-title">SISTEMA RECUPERADO</h1>
+      <p id="victory-rank" class="result-rank">Investigador</p>
+      <div id="victory-stats" class="result-stats"></div>
+      <div class="result-actions">
+        <button id="btn-replay" type="button" class="btn btn-primary">JOGAR NOVAMENTE</button>
+        <button id="btn-recap" type="button" class="btn btn-ghost">VER COMO FOI RESOLVIDO</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TELA DE DERROTA ================= -->
+  <section id="screen-defeat" class="screen hidden">
+    <div class="result-card result-defeat">
+      <p class="result-kicker">🚨 SISTEMA BLOQUEADO</p>
+      <h1 class="result-title">O TEMPO ACABOU</h1>
+      <p class="result-text">O protocolo de segurança foi reativado. O laboratório permanece trancado.</p>
+      <div id="defeat-stats" class="result-stats"></div>
+      <div class="result-actions">
+        <button id="btn-retry" type="button" class="btn btn-primary">TENTAR NOVAMENTE</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PAINEL: INVENTÁRIO ================= -->
+  <div id="panel-inventory" class="side-panel hidden" role="dialog" aria-modal="false" aria-label="Inventário">
+    <div class="side-panel-head">
+      <h2>🎒 Inventário</h2>
+      <button type="button" class="icon-btn" data-close-panel="panel-inventory" aria-label="Fechar inventário">✕</button>
+    </div>
+    <div id="inventory-list" class="side-panel-body"></div>
+  </div>
+
+  <!-- ================= PAINEL: PISTAS ================= -->
+  <div id="panel-hint" class="side-panel hidden" role="dialog" aria-modal="false" aria-label="Sistema de pistas">
+    <div class="side-panel-head">
+      <h2>💡 Pistas</h2>
+      <button type="button" class="icon-btn" data-close-panel="panel-hint" aria-label="Fechar pistas">✕</button>
+    </div>
+    <div id="hint-body" class="side-panel-body"></div>
+  </div>
+
+  <!-- ================= MODO PROFESSOR ================= -->
+  <div id="teacher-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Modo professor">
+    <div class="modal-box modal-box-lg">
+      <div class="modal-head">
+        <h2>🧑‍🏫 Modo Professor</h2>
+        <button type="button" class="icon-btn" data-close-modal="teacher-modal" aria-label="Fechar modo professor">✕</button>
+      </div>
+      <div id="teacher-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- ================= RECAPITULAÇÃO FINAL ================= -->
+  <div id="recap-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Como foi resolvido">
+    <div class="modal-box modal-box-lg">
+      <div class="modal-head">
+        <h2>🗂️ Como foi resolvido</h2>
+        <button type="button" class="icon-btn" data-close-modal="recap-modal" aria-label="Fechar recapitulação">✕</button>
+      </div>
+      <div id="recap-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="toast-region" class="toast-region" aria-live="polite"></div>
+</div>
+
+<script src="js/state.js"></script>
+<script src="js/database.js"></script>
+<script src="js/puzzles.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
