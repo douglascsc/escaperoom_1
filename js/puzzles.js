@@ -529,7 +529,7 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
       'Você já viu os dados corretos desse usuário na Sala 04, ao descriptografar o registro — releia o que apareceu lá.',
       "Para corrigir o registro existente: UPDATE usuarios SET nome = '...', login = '...', perfil = '...' WHERE id = ...;",
       'O perfil precisa ser, claramente, "administrador" — não "usuário" nem "operador".',
-      "Dados exatos: Nome = admin · Login = master · Perfil = administrador — aplique no ID do registro corrompido que você viu na tabela, ou insira um novo."
+      "Você já viu os três valores certos ao descriptografar o registro na Sala 04 — aplique-os no registro corrompido (UPDATE) ou insira um novo com eles (INSERT)."
     ],
     render: function (state) {
       if (state.solvedPuzzles.includes('crud')) return renderSolvedView(roomCRUD);
