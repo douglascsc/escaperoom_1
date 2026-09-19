@@ -374,11 +374,6 @@ input:focus-visible, select:focus-visible, button:focus-visible, [tabindex]:focu
   align-self: start;
 }
 .db-tables-title { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-faint); letter-spacing: 0.1em; margin-bottom: 0.3em; }
-.table-btn {
-  background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text);
-  border-radius: 6px; padding: 0.5em 0.6em; text-align: left; cursor: pointer; font-size: 0.85rem;
-}
-.table-btn:hover { border-color: var(--accent-dim); }
 .table-chip {
   background: var(--bg-elevated); border: 1px solid var(--border-soft); color: var(--text-dim);
   border-radius: 6px; padding: 0.5em 0.6em; text-align: left; font-size: 0.85rem;

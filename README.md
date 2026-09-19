@@ -32,7 +32,7 @@ Ao final, o objetivo pedagógico é que o aluno tenha praticado, de forma concre
 - **JavaScript**: variáveis, condicionais, funções, eventos, console do navegador.
 - **Banco de Dados**: tabelas, registros, campos.
 - **SQL**: `SELECT`, `WHERE`, interpretação de consultas.
-- **CRUD**: Create, Read, Update, Delete, com dados reais mudando na tela.
+- **CRUD**: Create (via `INSERT`) e Update (via `UPDATE`), escritos como comandos SQL reais, com Read (visualização da tabela) e dados reais mudando na tela e persistindo em `localStorage`.
 
 ## Tecnologias utilizadas
 
@@ -93,7 +93,7 @@ Não é necessário nenhum passo de build: o `index.html` já referencia os arqu
 - **`js/state.js`** guarda um único objeto `gameState` (sala atual, tempo restante, inventário, desafios resolvidos, pistas usadas, erros, usuários do CRUD etc.) e salva automaticamente em `localStorage` a cada mudança. Se a página for recarregada no meio do jogo, o progresso é restaurado (inclusive o tempo restante, compensando o tempo real que passou).
 - **`js/puzzles.js`** define cada sala como um objeto com `render(state)` (devolve o HTML da sala) e `init(container)` (liga os eventos depois que o HTML entra no DOM). Quando uma sala já foi resolvida, `render()` automaticamente devolve a "tela de sala concluída" — por isso recarregar a página no meio do jogo nunca deixa o jogador preso numa sala já vencida.
 - **`js/game.js`** é o controlador: troca de telas, cronômetro, painéis de inventário/pistas, som, modo professor e telas de vitória/derrota. Ele expõe um pequeno "contrato" em `App.Game` (`completeRoom`, `registerMistake`, `grantItem`, `playSound`, `toast`) que `puzzles.js` usa para reportar o que aconteceu em cada sala, sem precisar conhecer os detalhes de HUD/telas.
-- **`js/database.js`** simula um banco de dados com três tabelas (`usuarios`, `produtos`, `logs`) como arrays de objetos JavaScript, e reconhece um conjunto controlado de padrões de consulta `SELECT` (não é um interpretador SQL genérico — ver seção abaixo).
+- **`js/database.js`** simula um banco de dados com três tabelas (`usuarios`, `produtos`, `logs`) como arrays de objetos JavaScript, e reconhece um conjunto controlado de padrões de `SELECT` (Sala 04) e de `INSERT`/`UPDATE` (Sala 05) — não é um interpretador SQL genérico (ver seção abaixo).
 
 ## Como adicionar novos desafios
 
@@ -139,15 +139,15 @@ A tela mostra, para cada sala:
 - as cinco pistas, na ordem em que são reveladas;
 - tempo estimado.
 
-**Sequência esperada**: CSS → HTML → JavaScript → Banco de Dados/SQL → CRUD → Sala de Controle (final), com duração total estimada de ~30 minutos. Nos últimos 5 minutos, um botão de tempo extra (+15 min, uso único) fica disponível no cabeçalho — o jogador precisa clicar nele, não é aplicado automaticamente.
+**Sequência esperada**: CSS → HTML → JavaScript → Banco de Dados/SQL → CRUD → Sala de Controle (final). A soma dos tempos estimados por sala fica entre 34 e 49 minutos — por isso o cronômetro começa em 30 minutos, mas a maioria das turmas deve precisar do tempo extra opcional para concluir sem pressa. Nos últimos 5 minutos, um botão de tempo extra (+15 min, uso único) fica disponível no cabeçalho — o jogador precisa clicar nele, não é aplicado automaticamente.
 
 **Respostas de referência** (a fonte da verdade é sempre `js/puzzles.js` e `js/database.js`, caso o professor tenha personalizado o jogo):
 
 - **Sala 01 (CSS)**: código `4816`, escondido por uma classe CSS cujo `color` é igual ao `background` (só aparece selecionando o texto ou inspecionando o elemento). Há um item isca com `display: none` mostrando o código falso `0000`.
 - **Sala 02 (HTML)**: senha `7392`, encontrada em um comentário HTML (`<!-- senha temporária: 7392 -->`) dentro do arquivo "aberto" ao clicar na 📁 pasta. Há um comentário-isca na 🗑️ lixeira (`1111`) e um número-isca no 📄 documento (`0000`/`1234`).
 - **Sala 03 (JavaScript)**: usuário `root` e senha em branco — a mesma convenção do usuário padrão de uma instalação recém-feita do MySQL. Essa dica é dada diretamente no log de boot exibido na sala (e reforçada por um `console.info`); a validação está na função `verificarAcessoSistema`, em `js/puzzles.js`, legível pelas ferramentas de desenvolvedor.
-- **Sala 04 (SQL)**: consulta esperada `SELECT * FROM usuarios WHERE perfil = 'admin';`, que revela o registro corrompido do admin. A tabela `logs` (`SELECT * FROM logs;`) explica o que aconteceu. Depois de rodar a consulta certa, aparece um botão "🔓 Descriptografar registro" que revela nome (`ADMIN`), login (`master`) e perfil (`administrador`) — só então a sala é marcada como concluída (a consulta sozinha não basta).
-- **Sala 05 (CRUD)**: a sala parte dos mesmos usuários da tabela `usuarios` da Sala 04 (`App.DB.tables.usuarios`, ver `js/state.js`) — incluindo o mesmo registro corrompido do administrador (ID 4). Não há botões de Editar/Excluir nesta sala: tudo é feito por um único console SQL que aceita tanto `INSERT` quanto `UPDATE` (`App.DB.runCrudCommand`, em `js/database.js`). Dois caminhos resolvem a sala: (1) **UPDATE** — corrigir o registro corrompido diretamente: `UPDATE usuarios SET nome = 'ADMIN', login = 'master', perfil = 'administrador' WHERE id = 4;`; ou (2) **INSERT** — criar um registro novo com `INSERT INTO usuarios (nome, login, perfil) VALUES ('ADMIN', 'master', 'administrador');` (o registro corrompido só fica ali sem uso, não precisa ser removido). Os três valores vêm do registro descriptografado na Sala 04 — não são revelados de novo nesta sala.
+- **Sala 04 (SQL)**: consulta esperada `SELECT * FROM usuarios WHERE perfil = 'admin';`, que revela o registro corrompido do admin. A tabela `logs` (`SELECT * FROM logs;`) explica o que aconteceu. Depois de rodar a consulta certa, aparece um botão "🔓 Descriptografar registro" que revela nome (`admin`), login (`master`) e perfil (`administrador`) — só então a sala é marcada como concluída (a consulta sozinha não basta).
+- **Sala 05 (CRUD)**: a sala parte dos mesmos usuários da tabela `usuarios` da Sala 04 (`App.DB.tables.usuarios`, ver `js/state.js`) — incluindo o mesmo registro corrompido do administrador (ID 4). Não há botões de Editar/Excluir nesta sala: tudo é feito por um único console SQL que aceita tanto `INSERT` quanto `UPDATE` (`App.DB.runCrudCommand`, em `js/database.js`). Dois caminhos resolvem a sala: (1) **UPDATE** — corrigir o registro corrompido diretamente: `UPDATE usuarios SET nome = 'admin', login = 'master', perfil = 'administrador' WHERE id = 4;`; ou (2) **INSERT** — criar um registro novo com `INSERT INTO usuarios (nome, login, perfil) VALUES ('admin', 'master', 'administrador');` (o registro corrompido só fica ali sem uso, não precisa ser removido). Os três valores vêm do registro descriptografado na Sala 04 — não são revelados de novo nesta sala.
 - **Sala final**: o código é a concatenação dos fragmentos revelados ao concluir cada sala anterior, na ordem CSS → HTML → JS → SQL → CRUD (com os valores padrão acima, o código é `37946`).
 
 ## Acessibilidade
@@ -162,6 +162,6 @@ A tela mostra, para cada sala:
 
 ## Limitações conhecidas
 
-- O "interpretador SQL" da Sala 04 reconhece apenas um conjunto fixo de padrões de consulta (ver `js/database.js`) — não é um parser SQL genérico. Isso é intencional (ver seção 13 do briefing original do projeto): o objetivo é ensinar a lógica de `SELECT`/`WHERE`, não implementar um banco de dados real.
+- O "interpretador SQL" (Sala 04, `SELECT`; Sala 05, `INSERT`/`UPDATE`) reconhece apenas um conjunto fixo de padrões (ver `js/database.js`) — não é um parser SQL genérico. Isso é intencional (ver seção 13 do briefing original do projeto): o objetivo é ensinar a lógica de `SELECT`/`WHERE`/`INSERT`/`UPDATE`, não implementar um banco de dados real.
 - Como o jogo roda inteiramente no navegador e é publicado como site estático, todo o código-fonte — inclusive as respostas — fica acessível a quem abrir as ferramentas de desenvolvedor. Isso é aceitável e, em boa parte da Sala 03, é a própria mecânica do desafio (ver seção "Segurança / soluções" no briefing original). O jogo não deve ser usado como mecanismo de avaliação com pontuação oficial sem supervisão.
 - O progresso é salvo por navegador/dispositivo (`localStorage`), não em nuvem — trocar de navegador ou de computador reinicia o jogo.

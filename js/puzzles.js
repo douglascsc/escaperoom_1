@@ -214,7 +214,6 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
           <p class="css-line">Próxima verificação automática em 12 minutos.</p>
         </div>
 
-
         <form id="css-form" class="field-row" autocomplete="off">
           <label class="sr-only" for="css-codigo">Código secreto</label>
           <input id="css-codigo" name="codigo" type="text" placeholder="código" aria-label="Código secreto">
@@ -401,7 +400,7 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
                 <thead><tr><th>nome</th><th>login</th><th>perfil</th></tr></thead>
                 <tbody><tr><td>${escapeHTML(admin.nome)}</td><td>${escapeHTML(admin.login)}</td><td>${escapeHTML(admin.perfil)}</td></tr></tbody>
               </table>
-              <p class="decrypt-reveal-note">⚠ Anote esses dados. O próximo painel de usuários parte deste mesmo registro corrompido — você poderá corrigi-lo diretamente ou excluí-lo e recriá-lo, mas não vai vê-lo descriptografado de novo.</p>
+              <p class="decrypt-reveal-note">⚠ Anote esses dados. O próximo painel de usuários parte deste mesmo registro corrompido — você poderá corrigi-lo diretamente (UPDATE) ou inserir um novo registro com esses dados (INSERT), mas não vai vê-lo descriptografado de novo.</p>
             </div>`;
 
           const alreadySolved = App.State.isSolved('db');
@@ -520,7 +519,7 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
     title: '✏️ SALA 05 — O USUÁRIO PERDIDO',
     estimatedTime: '7–10 min',
     concepts: ['SQL INSERT', 'SQL UPDATE', 'Read', 'localStorage'],
-    solvedText: 'Você restaurou o usuário administrador com os dados corretos: ADMIN / master / administrador.',
+    solvedText: 'Você restaurou o usuário administrador com os dados corretos: admin / master / administrador.',
     fragment: '6',
     item: { id: 'cartao-acesso', nome: '🪪 Cartão de Acesso', icone: '🪪', descricao: 'Emitido automaticamente ao restaurar o administrador do sistema.' },
     // RESPOSTA: dados exatos do usuário administrador a ser recriado
@@ -529,8 +528,8 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
       'O registro do administrador não sumiu — está corrompido na tabela, com o mesmo ID que você já viu na Sala 04. Corrija-o com um UPDATE ou substitua-o com um INSERT.',
       'Você já viu os dados corretos desse usuário na Sala 04, ao descriptografar o registro — releia o que apareceu lá.',
       "Para corrigir o registro existente: UPDATE usuarios SET nome = '...', login = '...', perfil = '...' WHERE id = ...;",
-      'O nome costuma aparecer em maiúsculas em contas administrativas de sistema, e o perfil precisa ser, claramente, "administrador".',
-      "Dados exatos: Nome = ADMIN · Login = master · Perfil = administrador — aplique no ID do registro corrompido que você viu na tabela, ou insira um novo."
+      'O perfil precisa ser, claramente, "administrador" — não "usuário" nem "operador".',
+      "Dados exatos: Nome = admin · Login = master · Perfil = administrador — aplique no ID do registro corrompido que você viu na tabela, ou insira um novo."
     ],
     render: function (state) {
       if (state.solvedPuzzles.includes('crud')) return renderSolvedView(roomCRUD);

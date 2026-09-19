@@ -1,8 +1,9 @@
 'use strict';
 /*
- * database.js — banco de dados simulado da Sala 04 (SQL) + um "interpretador"
- * controlado: reconhece um conjunto limitado de padrões de consulta SELECT,
- * não é um parser SQL completo (ver README, seção "Como adicionar novos desafios").
+ * database.js — banco de dados simulado da Sala 04 (SQL) e da Sala 05 (CRUD)
+ * + um "interpretador" controlado: reconhece um conjunto limitado de padrões
+ * de SELECT (Sala 04) e de INSERT/UPDATE (Sala 05). Não é um parser SQL
+ * completo (ver README, seção "Como adicionar novos desafios").
  */
 window.App = window.App || {};
 
@@ -45,8 +46,8 @@ window.App = window.App || {};
 
   // Valores reais do administrador, obtidos ao "descriptografar" o registro
   // corrompido na Sala 04. Isso NÃO altera `tables.usuarios` — é só leitura,
-  // a restauração de verdade acontece na Sala 05, via INSERT.
-  const decryptedAdmin = { nome: 'ADMIN', login: 'master', perfil: 'administrador' };
+  // a restauração de verdade acontece na Sala 05, via INSERT ou UPDATE.
+  const decryptedAdmin = { nome: 'admin', login: 'master', perfil: 'administrador' };
   function decryptAdminRecord() {
     return Object.assign({}, decryptedAdmin);
   }
@@ -132,7 +133,7 @@ window.App = window.App || {};
         return {
           ok: true,
           table: 'usuarios',
-          rows: [tables.usuarios[3]],
+          rows: [tables.usuarios.find(function (u) { return u.id === CORRUPTED_ADMIN_ID; })],
           message: 'Registro encontrado, mas os dados foram corrompidos na queda do sistema. Consulte a tabela "logs" para entender o que aconteceu.',
           grants: 'admin_filter'
         };

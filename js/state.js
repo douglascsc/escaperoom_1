@@ -29,7 +29,6 @@ window.App = window.App || {};
       mistakes: 0,
       mistakesByRoom: { html: 0, css: 0, js: 0, db: 0, crud: 0, final: 0 },
       soundOn: true,
-      dbQueriesRun: [],        // histórico de consultas SQL bem-sucedidas (por nome de padrão)
       // A Sala 05 parte exatamente dos mesmos usuários da tabela `usuarios`
       // da Sala 04 (ver js/database.js) — inclusive o registro corrompido do
       // administrador — em vez de uma lista própria e desconectada.
@@ -77,16 +76,6 @@ window.App = window.App || {};
     save();
   }
 
-  function hasSavedProgress() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return false;
-      const parsed = JSON.parse(raw);
-      return !!parsed.started && !parsed.finished;
-    } catch (e) {
-      return false;
-    }
-  }
 
   function startGame() {
     gameState.started = true;
@@ -217,7 +206,6 @@ window.App = window.App || {};
     load: load,
     save: save,
     reset: reset,
-    hasSavedProgress: hasSavedProgress,
     startGame: startGame,
     tick: tick,
     addInventoryItem: addInventoryItem,

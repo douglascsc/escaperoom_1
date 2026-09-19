@@ -226,7 +226,6 @@ window.App = window.App || {};
     App.State.addMistake(roomId);
   }
 
-  function rerenderRoom() { renderRoom(); }
 
   function goToNextRoom(fromRoomId) {
     const next = App.State.nextRoomAfter(fromRoomId);
@@ -329,10 +328,15 @@ window.App = window.App || {};
   // ---------------------------------------------------------------------
   function formatAnswer(room) {
     if (room.id === 'crud') {
-      return 'Nome: ADMIN · Login: master · Perfil: administrador';
+      const a = room.answer;
+      return 'Nome: ' + a.nome + ' · Login: ' + a.login + ' · Perfil: ' + a.perfil;
     }
     if (room.id === 'final') {
-      return 'Concatenação dos fragmentos revelados em cada sala, na ordem CSS → HTML → JS → SQL → CRUD (ex.: "37946"). É calculado dinamicamente a partir de App.State.ROOM_ORDER, não é fixo caso a ordem ou os fragmentos sejam alterados.';
+      const order = App.State.ROOM_ORDER.filter(function (r) { return r !== 'final'; });
+      const orderNames = order.map(function (r) { return App.Puzzles.roomMeta[r].name; }).join(' → ');
+      const example = order.map(function (r) { return App.Puzzles.rooms[r].fragment || ''; }).join('');
+      return 'Concatenação dos fragmentos revelados em cada sala, na ordem ' + orderNames +
+        ' (com os valores atuais, o código é "' + example + '"). É calculado dinamicamente a partir de App.State.ROOM_ORDER e do fragment de cada sala — nunca fica desatualizado se a ordem ou os fragmentos mudarem.';
     }
     return room.answer;
   }
@@ -349,9 +353,30 @@ window.App = window.App || {};
     }).join('');
   }
 
+  // Soma os intervalos de estimatedTime (ex.: "5–7 min") de todas as salas,
+  // pra nunca deixar o texto do Modo Professor dessincronizado dos números
+  // reais de cada sala.
+  function sumEstimatedMinutes() {
+    let min = 0;
+    let max = 0;
+    App.State.ROOM_ORDER.forEach(function (id) {
+      const m = App.Puzzles.rooms[id].estimatedTime.match(/(\d+)\D+(\d+)/);
+      if (m) { min += Number(m[1]); max += Number(m[2]); }
+    });
+    return { min: min, max: max };
+  }
+
   function openTeacherModal() {
+    const sequenceNames = App.State.ROOM_ORDER.map(function (id) { return App.Puzzles.roomMeta[id].name; }).join(' → ');
+    const totals = sumEstimatedMinutes();
+    const totalMin = Math.round(App.State.TOTAL_TIME / 60);
+    const extraMin = Math.round(App.State.EXTRA_TIME / 60);
+    const extraThresholdMin = Math.round(App.State.EXTRA_TIME_THRESHOLD / 60);
     el.teacherBody.innerHTML =
-      '<p class="teacher-intro">Sequência esperada: CSS → HTML → JavaScript → Banco de Dados/SQL → CRUD → Sala de Controle. Duração estimada total: ~30 minutos (pode chegar a 45 minutos se o jogador acionar o tempo extra opcional, liberado nos últimos 5 minutos).</p>' +
+      '<p class="teacher-intro">Sequência esperada: ' + sequenceNames + '. A soma dos tempos estimados por sala (abaixo) fica entre ' +
+      totals.min + ' e ' + totals.max + ' minutos — por isso o cronômetro começa em ' + totalMin +
+      ' minutos, mas a maioria das turmas deve precisar do tempo extra opcional (+' + extraMin + ' min, uso único, liberado nos últimos ' +
+      extraThresholdMin + ' minutos) para concluir sem pressa.</p>' +
       buildInfoSections(true);
     el.teacherModal.classList.remove('hidden');
   }
@@ -571,7 +596,6 @@ window.App = window.App || {};
     markRoomSolvedKeepView: markRoomSolvedKeepView,
     grantItem: grantItem,
     registerMistake: registerMistake,
-    rerenderRoom: rerenderRoom,
     finishGame: finishGame,
     toast: toast,
     openRoomReview: openRoomReview
