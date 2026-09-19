@@ -23,7 +23,7 @@ window.App = window.App || {};
     logs: [
       { id: 1, dataHora: '2026-01-03 22:41', evento: 'Backup automático concluído com sucesso.' },
       { id: 2, dataHora: '2026-01-04 03:12', evento: "Manutenção de rotina: conta 'admin' removida acidentalmente da tabela usuarios." },
-      { id: 3, dataHora: '2026-01-04 03:13', evento: "Recuperação necessária: recriar usuário com nome 'ADMIN', login 'master' e perfil administrador pelo painel de administração." },
+      { id: 3, dataHora: '2026-01-04 03:13', evento: 'Recuperação necessária: o usuário apagado ainda pode ser localizado. Consulte a tabela de usuários utilizando um filtro.' },
       { id: 4, dataHora: '2026-01-04 09:05', evento: 'Selo de auditoria emitido para a restauração pendente: SELO-K19.' },
       { id: 5, dataHora: '2026-01-05 07:58', evento: 'Nenhuma anomalia adicional detectada.' }
     ]
