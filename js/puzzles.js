@@ -416,17 +416,30 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
         <div class="db-layout">
           <div class="db-tables">
             <p class="db-tables-title">TABELAS</p>
-            <button type="button" class="table-btn" data-table="usuarios">📁 usuarios</button>
-            <button type="button" class="table-btn" data-table="produtos">📁 produtos</button>
-            <button type="button" class="table-btn" data-table="logs">📁 logs</button>
+            <span class="table-chip">📁 usuarios</span>
+            <span class="table-chip">📁 produtos</span>
+            <span class="table-chip">📁 logs</span>
           </div>
           <div id="review-db-table-view" class="db-table-view" aria-live="polite">
-            <p class="db-placeholder">Selecione uma tabela para visualizar os registros.</p>
+            <p class="db-placeholder">Use um comando SQL para consultar uma tabela.</p>
           </div>
+        </div>
+        <div class="sql-console">
+          <p class="terminal-label">SQL COMMAND</p>
+          <form id="review-db-form" class="field-row" autocomplete="off">
+            <label class="sr-only" for="review-db-query">Consulta SQL</label>
+            <input id="review-db-query" name="query" type="text" placeholder="" spellcheck="false">
+            <button type="submit" class="btn btn-primary">EXECUTAR</button>
+          </form>
+          <div id="review-db-result" class="db-result" role="status"></div>
         </div>`;
     },
     reviewInit: function (container) {
       const tableView = container.querySelector('#review-db-table-view');
+      const form = container.querySelector('#review-db-form');
+      const input = container.querySelector('#review-db-query');
+      const result = container.querySelector('#review-db-result');
+
       function renderTable(name, rows) {
         if (!rows.length) { tableView.innerHTML = '<p class="db-placeholder">Tabela vazia.</p>'; return; }
         const cols = Object.keys(rows[0]);
@@ -437,11 +450,20 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
         html += '</tbody></table>';
         tableView.innerHTML = html;
       }
-      container.querySelectorAll('.table-btn').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          App.Game.playSound('click');
-          renderTable(btn.dataset.table, App.DB.tables[btn.dataset.table]);
-        });
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const res = App.DB.runQuery(input.value);
+        if (res.ok) {
+          App.Game.playSound('success');
+          renderTable(res.table, res.rows);
+          result.className = 'db-result db-result-ok';
+          result.textContent = res.message;
+        } else {
+          App.Game.playSound('error');
+          result.className = 'db-result db-result-error';
+          result.textContent = res.message;
+        }
       });
     }
   };
@@ -485,9 +507,7 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
           <p>&gt; Você precisa restaurá-lo.</p>
         </div>
 
-        <p class="room-tip">💭 Reveja o que os registros de log da Sala 04 diziam sobre como recriar essa conta.</p>
-
-        ${state.solvedPuzzles.includes('db') ? '<button type="button" id="crud-review-db-btn" class="btn btn-ghost">🔎 Rever Sala 04 — Banco de Dados</button>' : ''}
+        ${state.solvedPuzzles.includes('db') ? '<button type="button" id="crud-review-db-btn" class="btn btn-ghost">← Voltar para Sala 04 — Banco de Dados</button>' : ''}
 
         <table class="crud-table">
           <thead><tr><th>ID</th><th>NOME</th><th>LOGIN</th><th>PERFIL</th><th>AÇÕES</th></tr></thead>
