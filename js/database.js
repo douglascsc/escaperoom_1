@@ -7,12 +7,17 @@
 window.App = window.App || {};
 
 (function () {
+  // ID do registro corrompido do administrador na tabela usuarios. A Sala 05
+  // parte deste mesmo conjunto de usuários (ver js/state.js) e só permite
+  // editar/excluir esta linha — as demais são só contexto.
+  const CORRUPTED_ADMIN_ID = 4;
+
   const tables = {
     usuarios: [
       { id: 1, nome: 'Ana Beatriz', login: 'ana', perfil: 'usuário' },
       { id: 2, nome: 'João Pedro', login: 'joao', perfil: 'usuário' },
       { id: 3, nome: 'Carlos Eduardo', login: 'carlos', perfil: 'operador' },
-      { id: 4, nome: '(registro corrompido)', login: '(registro corrompido)', perfil: 'admin' }
+      { id: CORRUPTED_ADMIN_ID, nome: '(registro corrompido)', login: '(registro corrompido)', perfil: 'admin' }
     ],
     produtos: [
       { id: 1, nome: 'Roteador RT-220', categoria: 'Rede', estoque: 14 },
@@ -139,6 +144,7 @@ window.App = window.App || {};
 
   App.DB = {
     tables: tables,
+    CORRUPTED_ADMIN_ID: CORRUPTED_ADMIN_ID,
     runQuery: runQuery,
     runInsert: runInsert,
     decryptAdminRecord: decryptAdminRecord

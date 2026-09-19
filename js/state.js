@@ -30,11 +30,11 @@ window.App = window.App || {};
       mistakesByRoom: { html: 0, css: 0, js: 0, db: 0, crud: 0, final: 0 },
       soundOn: true,
       dbQueriesRun: [],        // histórico de consultas SQL bem-sucedidas (por nome de padrão)
-      crudUsers: [
-        { id: 1, nome: 'Ana Beatriz', login: 'ana', perfil: 'usuário' },
-        { id: 2, nome: 'João Pedro', login: 'joao', perfil: 'usuário' }
-      ],
-      crudNextId: 3,
+      // A Sala 05 parte exatamente dos mesmos usuários da tabela `usuarios`
+      // da Sala 04 (ver js/database.js) — inclusive o registro corrompido do
+      // administrador — em vez de uma lista própria e desconectada.
+      crudUsers: App.DB.tables.usuarios.map(function (u) { return Object.assign({}, u); }),
+      crudNextId: Math.max.apply(null, App.DB.tables.usuarios.map(function (u) { return u.id; })) + 1,
       finishTime: null, // segundos decorridos quando o jogo terminou
       extraTimeUsed: false,
       teamMembers: [] // nomes informados na tela inicial (1 a 5)

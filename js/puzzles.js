@@ -22,6 +22,17 @@ window.App = window.App || {};
       .replace(/>/g, '&gt;');
   }
 
+  // Sala 05 (CRUD): só o registro corrompido do administrador (mesmo ID da
+  // Sala 04) pode ser editado/excluído — os demais usuários são só contexto,
+  // herdado da mesma tabela, e não fazem parte do quebra-cabeça.
+  function crudActionsMarkup(user) {
+    if (user.id !== App.DB.CORRUPTED_ADMIN_ID) {
+      return '<span class="crud-actions-none">—</span>';
+    }
+    return `<button type="button" class="btn btn-mini" data-action="edit" data-id="${user.id}">EDITAR</button>
+      <button type="button" class="btn btn-mini btn-mini-danger" data-action="delete" data-id="${user.id}">EXCLUIR</button>`;
+  }
+
   function solvedBannerMarkup(room) {
     const item = room.item;
     return `
@@ -400,6 +411,7 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
                 <thead><tr><th>nome</th><th>login</th><th>perfil</th></tr></thead>
                 <tbody><tr><td>${escapeHTML(admin.nome)}</td><td>${escapeHTML(admin.login)}</td><td>${escapeHTML(admin.perfil)}</td></tr></tbody>
               </table>
+              <p class="decrypt-reveal-note">⚠ Anote esses dados. O próximo painel de usuários parte deste mesmo registro corrompido — você poderá corrigi-lo diretamente ou excluí-lo e recriá-lo, mas não vai vê-lo descriptografado de novo.</p>
             </div>`;
 
           const alreadySolved = App.State.isSolved('db');
@@ -518,27 +530,24 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
     title: '✏️ SALA 05 — O USUÁRIO PERDIDO',
     estimatedTime: '7–10 min',
     concepts: ['Create via SQL INSERT', 'Read', 'Update', 'Delete', 'Formulários e localStorage'],
-    solvedText: 'Você recriou o usuário administrador com os dados corretos: ADMIN / master / administrador.',
+    solvedText: 'Você restaurou o usuário administrador com os dados corretos: ADMIN / master / administrador.',
     fragment: '6',
     item: { id: 'cartao-acesso', nome: '🪪 Cartão de Acesso', icone: '🪪', descricao: 'Emitido automaticamente ao restaurar o administrador do sistema.' },
     // RESPOSTA: dados exatos do usuário administrador a ser recriado
     answer: { nome: 'admin', login: 'master', perfil: 'administrador' },
     hints: [
-      'O registro do administrador foi apagado — não o sistema inteiro. Você precisa recriá-lo com um comando SQL INSERT.',
-      'Você já viu os dados desse usuário na Sala 04, ao descriptografar o registro corrompido — releia o que apareceu lá.',
-      "A sintaxe é: INSERT INTO usuarios (nome, login, perfil) VALUES ('...', '...', '...');",
+      'O registro do administrador não sumiu — ele está corrompido na tabela, com o mesmo ID que você já viu na Sala 04. Corrija-o (UPDATE) ou exclua-o e recrie-o (DELETE + INSERT); qualquer um dos dois funciona.',
+      'Você já viu os dados corretos desse usuário na Sala 04, ao descriptografar o registro — releia o que apareceu lá.',
+      "Para recriar via SQL, a sintaxe é: INSERT INTO usuarios (nome, login, perfil) VALUES ('...', '...', '...');",
       'O nome costuma aparecer em maiúsculas em contas administrativas de sistema, e o perfil precisa ser, claramente, "administrador".',
-      "Dados exatos: INSERT INTO usuarios (nome, login, perfil) VALUES ('ADMIN', 'master', 'administrador');"
+      "Dados exatos: Nome = ADMIN · Login = master · Perfil = administrador."
     ],
     render: function (state) {
       if (state.solvedPuzzles.includes('crud')) return renderSolvedView(roomCRUD);
       const rows = state.crudUsers.map(function (u) {
         return `<tr data-id="${u.id}">
           <td>${u.id}</td><td>${escapeHTML(u.nome)}</td><td>${escapeHTML(u.login)}</td><td>${escapeHTML(u.perfil)}</td>
-          <td class="crud-actions">
-            <button type="button" class="btn btn-mini" data-action="edit" data-id="${u.id}">EDITAR</button>
-            <button type="button" class="btn btn-mini btn-mini-danger" data-action="delete" data-id="${u.id}">EXCLUIR</button>
-          </td>
+          <td class="crud-actions">${crudActionsMarkup(u)}</td>
         </tr>`;
       }).join('');
       return `
@@ -546,8 +555,8 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
         <p class="room-kicker">SALA 05</p>
         <h2 class="room-title">✏️ O Usuário Perdido</h2>
         <div class="room-narrative">
-          <p>&gt; O registro necessário para abrir a porta foi apagado.</p>
-          <p>&gt; Você precisa restaurá-lo.</p>
+          <p>&gt; O registro do administrador não foi apagado — está corrompido, ainda na tabela.</p>
+          <p>&gt; Corrija-o ou substitua-o. Você decide como.</p>
         </div>
 
         ${state.solvedPuzzles.includes('db') ? '<button type="button" id="crud-review-db-btn" class="btn btn-ghost">← Voltar para Sala 04 — Banco de Dados</button>' : ''}
@@ -603,10 +612,7 @@ senha temporária. Este memorando não contém a senha atual.</pre>`,
 
       function rowMarkup(user) {
         return `<td>${user.id}</td><td>${escapeHTML(user.nome)}</td><td>${escapeHTML(user.login)}</td><td>${escapeHTML(user.perfil)}</td>
-          <td class="crud-actions">
-            <button type="button" class="btn btn-mini" data-action="edit" data-id="${user.id}">EDITAR</button>
-            <button type="button" class="btn btn-mini btn-mini-danger" data-action="delete" data-id="${user.id}">EXCLUIR</button>
-          </td>`;
+          <td class="crud-actions">${crudActionsMarkup(user)}</td>`;
       }
 
       function appendUserRow(user) {

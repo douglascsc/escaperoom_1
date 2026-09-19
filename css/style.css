@@ -412,6 +412,7 @@ input:focus-visible, select:focus-visible, button:focus-visible, [tabindex]:focu
   border-radius: var(--radius); padding: 0.9em 1em;
 }
 .decrypt-reveal-title { font-size: 0.82rem; color: var(--green); margin-bottom: 0.6em; }
+.decrypt-reveal-note { font-size: 0.8rem; color: var(--amber); margin: 0.7em 0 0; }
 .decrypt-reveal .db-table { background: transparent; }
 
 /* ---------- Sala CRUD ---------- */
@@ -419,6 +420,7 @@ input:focus-visible, select:focus-visible, button:focus-visible, [tabindex]:focu
 .crud-table th, .crud-table td { border-bottom: 1px solid var(--border-soft); padding: 0.6em 0.7em; text-align: left; }
 .crud-table th { color: var(--text-faint); font-family: var(--font-mono); font-weight: 600; font-size: 0.78rem; }
 .crud-actions { display: flex; gap: 0.4rem; }
+.crud-actions-none { color: var(--text-faint); }
 .crud-form {
   background: var(--bg-panel);
   border: 1px solid var(--border);
